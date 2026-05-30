@@ -145,6 +145,23 @@
   .medal .mn{font-family:"Press Start 2P";font-size:.5rem;color:var(--gold);margin-top:6px;line-height:1.5}
   .medal .md{font-size:.92rem;color:var(--muted);margin-top:6px;line-height:1.25}
   .medal.got .mn{text-shadow:0 0 6px var(--gold)}
+  /* yarig real */
+  .ybar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:0 0 6px}
+  .ystat{font-family:"Press Start 2P";font-size:.55rem;border:2px solid var(--neon2);color:var(--neon2);background:#06141a;padding:10px 12px;box-shadow:3px 3px 0 #000;line-height:1.6}
+  .ystat b{color:#fff;font-size:.7rem}
+  .ytask{border:3px solid var(--line);background:#0e0a22;box-shadow:4px 4px 0 #000;padding:13px;margin-bottom:11px}
+  .ytask .yh{font-size:.92rem;color:var(--muted)}
+  .ytask .yd{font-size:1.12rem;color:#fff;margin:5px 0}
+  .ytask .ymeta{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-top:8px;font-size:.95rem;color:var(--muted)}
+  .sbadge{font-family:"Press Start 2P";font-size:.45rem;padding:5px 8px;border:2px solid}
+  .sbadge.proc{color:var(--neon);border-color:#2a6b1f;background:#0a1a06}
+  .sbadge.pend{color:var(--neon2);border-color:#155;background:#04141a}
+  .sbadge.fin{color:var(--muted);border-color:var(--line);background:#0c0820}
+  .ysec{font-family:"Press Start 2P";font-size:.5rem;color:var(--gold);margin:18px 0 10px;text-shadow:0 0 6px var(--gold)}
+  .docbody{padding:16px;max-height:78vh;overflow:auto}
+  .dlvl{border-left:3px solid var(--neon2);padding:2px 0 10px 12px;margin-bottom:4px}
+  .dlvl .dt{font-family:"Press Start 2P";font-size:.55rem;color:var(--neon);margin-bottom:6px;text-shadow:0 0 5px var(--neon)}
+  .dlvl .dd{font-size:1.04rem;color:var(--muted);line-height:1.3}
   #toast{position:fixed;left:50%;top:22%;transform:translateX(-50%) scale(0);z-index:500;
     font-family:"Press Start 2P";font-size:1rem;color:var(--gold);text-shadow:0 0 10px var(--gold),4px 4px 0 #000;
     border:3px solid var(--gold);background:#1a1400;padding:18px 26px;box-shadow:0 0 0 3px #000;transition:transform .25s}
@@ -168,6 +185,7 @@
         <button data-gen="modern">▶ COETÁNEOS</button>
       </div>
       <button class="iconbtn on" id="sfxBtn" title="Sonido">♪ SFX</button>
+      <button class="iconbtn" id="docsBtn" title="Docs / evolución">❔ DOCS</button>
     </div>
   </header>
 
@@ -200,6 +218,7 @@
         <button class="tab" data-view="depts">🏢 DEPTS</button>
         <button class="tab" data-view="rank">🏆 RANKING</button>
         <button class="tab" data-view="medals">🎖️ MEDALLAS</button>
+        <button class="tab" data-view="yarig">🛰️ YARIG</button>
       </div>
       <div id="view-liga">
         <p class="sect px">🥇 LIGA DE STARTUPS</p>
@@ -223,6 +242,11 @@
       <div id="view-medals" style="display:none">
         <p class="sect px" id="medTitle">🎖️ MEDALLAS</p>
         <div class="medgrid" id="medGrid"></div>
+      </div>
+      <div id="view-yarig" style="display:none">
+        <p class="sect px">🛰️ YARIG.AI · DATOS REALES</p>
+        <button class="btn blue" id="yarigSync" style="max-width:280px">🔄 SINCRONIZAR YARIG</button>
+        <div id="yarigBody" style="margin-top:14px"></div>
       </div>
     </div>
   </div>
@@ -255,6 +279,17 @@
       <div id="pmStatus"></div>
       <div class="missions" id="pmMissions"></div>
     </div>
+  </div>
+</div>
+
+<div class="ov" id="docOv">
+  <div class="modal">
+    <div class="mh">
+      <div class="ava">📖</div>
+      <div><div class="nm">DOCS · EVOLUCIÓN</div><div class="mt">Yarig Arcade — registro de cambios</div></div>
+      <div class="x px" id="docClose">X</div>
+    </div>
+    <div class="docbody" id="docBody"></div>
   </div>
 </div>
 
@@ -529,8 +564,9 @@ function renderDepts(){
 }
 function setView(v){
   view=v;
-  ["liga","party","depts","rank","medals"].forEach(x=>{$("view-"+x).style.display=(x===v)?"block":"none";});
+  ["liga","party","depts","rank","medals","yarig"].forEach(x=>{$("view-"+x).style.display=(x===v)?"block":"none";});
   document.querySelectorAll("#tabs .tab").forEach(b=>b.classList.toggle("active",b.dataset.view===v));
+  if(v==="yarig"&&!$("yarigBody").innerHTML.trim())syncYarig();
   sfxClick();
 }
 
@@ -644,6 +680,82 @@ async function councilAsk(roleKey, message){
   throw new Error(lastErr||"sin conexión");
 }
 
+// ── Yarig.ai real (vía bridge admira-live-worker) ──
+const YARIG_BRIDGE="https://admira-live-worker.csilvasantin.workers.dev/api";
+async function yarigFetch(ep){
+  const r=await fetch(YARIG_BRIDGE+"/"+ep,{signal:AbortSignal.timeout(15000)});
+  if(!r.ok)throw new Error("HTTP "+r.status); return r.json();
+}
+function normTask(t){
+  return {
+    desc:t.description||t.desc||t.todo||t.task||t.name||"(sin descripción)",
+    project:t.project||t.proyecto||t.project_name||t.company||"",
+    status:String(t.status||t.state||t.estado||"").trim(),
+    est:t.estimation||t.estimacion||t.estimated_hours||t.hours||t.estimation_hours||"",
+    time:t.time_dedicated||t.tiempo||t.dedicated||t.total_time||t.time||"",
+    date:t.date||t.datetime||t.added||t.created_at||t.fecha||"",
+    user:t.name||t.user||t.username||"",
+  };
+}
+function sbadge(status){const s=String(status).toLowerCase();
+  if(/proces/.test(s))return '<span class="sbadge proc">EN PROCESO</span>';
+  if(/finaliz/.test(s))return '<span class="sbadge fin">FINALIZADA</span>';
+  if(/pend/.test(s))return '<span class="sbadge pend">PENDIENTE</span>';
+  return status?`<span class="sbadge pend">${esc(status)}</span>`:"";}
+function ytaskCard(t){const n=normTask(t);
+  return `<div class="ytask">
+    <div class="yh">${n.date?"🕒 "+esc(String(n.date)):""}${n.project?" · 📁 "+esc(n.project):""}${n.user?" · 👤 "+esc(n.user):""}</div>
+    <div class="yd">${esc(n.desc)}</div>
+    <div class="ymeta">${sbadge(n.status)}${n.est?` · Estimación: <b style="color:var(--fg)">${esc(String(n.est))}h</b>`:""}${n.time?` · Tiempo: <b style="color:var(--fg)">${esc(String(n.time))}</b>`:""}</div>
+  </div>`;}
+async function syncYarig(){
+  const body=$("yarigBody"); body.innerHTML='<div class="loading">SINCRONIZANDO CON YARIG…</div>';
+  try{
+    const [score,today,ranking,company]=await Promise.allSettled([
+      yarigFetch("score/total"),yarigFetch("tasks/today"),yarigFetch("team/ranking"),yarigFetch("company/tasks")]);
+    const sc=score.status==="fulfilled"?score.value.data:undefined;
+    const td=today.status==="fulfilled"?today.value.data:null;
+    const rk=ranking.status==="fulfilled"?ranking.value.data:null;
+    const co=company.status==="fulfilled"?company.value.data:null;
+    let html=`<div class="ybar">`;
+    if(sc!==undefined&&sc!==false&&sc!==null)html+=`<div class="ystat">MI SCORE<br><b>${esc(String(sc))}</b></div>`;
+    const clock=(td&&Array.isArray(td.clocking))?td.clocking:[];
+    if(clock.length){const last=clock[clock.length-1];
+      html+=`<div class="ystat">JORNADA<br><b>${esc(last.name||"")}</b> · ${esc(String(last.datetime||"").slice(11,16))}</div>`;}
+    html+=`</div>`;
+    const tasks=(td&&Array.isArray(td.tasks))?td.tasks:[];
+    html+=`<p class="ysec">📋 MIS TAREAS HOY · ${tasks.length}</p>`;
+    html+=tasks.length?tasks.map(ytaskCard).join(""):`<div class="empty" style="padding:18px;font-size:.45rem">SIN TAREAS HOY EN YARIG</div>`;
+    if(Array.isArray(rk)&&rk.length){
+      html+=`<p class="ysec">🏆 RANKING DEL EQUIPO · YARIG</p><div class="rank">`+
+        rk.map((u,i)=>`<div class="rrow p${i+1}"><div class="pos">${["🥇","🥈","🥉"][i]||("#"+(i+1))}</div><div class="rava">🧑‍🚀</div><div><div class="rnm">${esc(u.name||u.user||u.username||"—")}</div></div><div class="rxp"><b>${esc(String(u.score??u.points??u.rank??u.total??""))}</b></div></div>`).join("")+`</div>`;
+    }
+    if(Array.isArray(co)&&co.length){
+      html+=`<p class="ysec">🏢 TAREAS DE LA EMPRESA · ${co.length}</p>`+co.slice(0,40).map(ytaskCard).join("");
+    }
+    if((sc===false||sc===undefined)&&!tasks.length&&!(Array.isArray(rk)&&rk.length)&&!(Array.isArray(co)&&co.length))
+      html+=`<div class="err">Yarig devolvió datos vacíos — la sesión del service account del bridge puede haber caducado (re-login del bridge necesario). Score/jornada pueden seguir disponibles.</div>`;
+    body.innerHTML=html; sfxCoin();
+  }catch(e){ body.innerHTML=`<div class="err">⚠ No se pudo conectar con Yarig: ${esc(e.message||e)}</div>`; }
+}
+
+// ── Docs / evolución ──
+const CHANGELOG=[
+  {t:"NIVEL 1 · Equipo + mentor",d:"Alta de miembros y asignación automática del consejero por rol. Toggle Leyendas/Coetáneos cambia la persona del mentor."},
+  {t:"NIVEL 2 · Coaching arcade",d:"El consejero (LLM del Consejo AdmiraNext) evalúa las tareas/OKRs y genera 3 misiones. Completarlas da +XP. Look arcade + SFX."},
+  {t:"NIVEL 3 · Arcade League",d:"Ranking de jugadores con podio, rachas 🔥 (días consecutivos) y 8 medallas/logros con toast."},
+  {t:"NIVEL 4 · Liga + Departamentos",d:"Varias startups que compiten en una liga + departamentos por startup con su propio ranking."},
+  {t:"NIVEL 5 · Liga en la nube",d:"Cloudflare Worker + KV: publica tus startups por código de liga y compite entre dispositivos en tiempo (casi) real."},
+  {t:"NIVEL 6 · Yarig real (en curso)",d:"Pestaña 🛰️ YARIG con datos reales de Yarig.ai (score, jornada/fichaje, tareas, ranking de equipo) vía el bridge admira-live-worker, en clave arcade."},
+];
+const YARIG_STRUCTURE=`Yarig.ai original que vamos replicando en arcade: secciones EQUIPO · FINANZAS · MARCA · PERSONAL · "Mis tareas" con estados Pendiente / En proceso / Finalizada · Estimación + Tiempo total dedicado · Añadir tareas · Finalizar jornada · Iniciar/Finalizar horas extras · Control/Iniciar/Editar/Borrar tarea · Historial de tareas.`;
+function openDocs(){
+  $("docBody").innerHTML=CHANGELOG.map(c=>`<div class="dlvl"><div class="dt">${esc(c.t)}</div><div class="dd">${esc(c.d)}</div></div>`).join("")
+    +`<p class="dd" style="margin-top:16px;color:var(--neon2);line-height:1.45">${esc(YARIG_STRUCTURE)}</p>`;
+  $("docOv").classList.add("show"); sfxClick();
+}
+function closeDocs(){$("docOv").classList.remove("show");}
+
 // ── Wiring ──
 fillRoles();
 $("addBtn").onclick=addMember;
@@ -662,6 +774,10 @@ $("ov").addEventListener("click",e=>{if(e.target===$("ov"))closePlayer();});
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closePlayer();});
 $("cloudBtn").onclick=toggleCloud;
 $("leagueCode").addEventListener("keydown",e=>{if(e.key==="Enter")toggleCloud();});
+$("docsBtn").onclick=openDocs;
+$("docClose").onclick=closeDocs;
+$("docOv").addEventListener("click",e=>{if(e.target===$("docOv"))closeDocs();});
+$("yarigSync").onclick=syncYarig;
 render();
 // arranque cloud si ya había liga activa
 $("leagueCode").value=state.leagueCode||"";
