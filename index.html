@@ -3,250 +3,409 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Yarig · Consejo de Startup</title>
+<title>YARIG ARCADE · Consejo de Startup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#0b0e14; --panel:#141925; --panel2:#1b2233; --line:#27314a;
-    --fg:#e8edf7; --muted:#8b97b3; --bright:#7CFC9B;
-    --racional:#e74c3c; --creativo:#3498db; --accent:#7c5cff;
-    --radius:14px; --shadow:0 6px 24px rgba(0,0,0,.35);
+    --bg:#0a0612; --bg2:#120a24; --ink:#1c1140; --line:#3b2a6b;
+    --fg:#f4ecff; --muted:#a99bd6; --neon:#39ff14; --neon2:#00e5ff;
+    --pink:#ff2e88; --gold:#ffd200; --purple:#9b5cff;
+    --racional:#ff3b3b; --creativo:#22d3ff;
   }
   *{box-sizing:border-box}
-  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,system-ui,sans-serif;
-    background:radial-gradient(1200px 700px at 80% -10%,#16203a 0%,var(--bg) 55%);color:var(--fg);min-height:100vh}
-  a{color:#8cf}
-  .wrap{max-width:1180px;margin:0 auto;padding:22px 20px 80px}
-  header.top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:6px}
-  .logo{font-size:1.55rem;font-weight:800;letter-spacing:.3px;display:flex;align-items:center;gap:10px}
-  .logo .sat{filter:drop-shadow(0 0 8px rgba(124,92,255,.6))}
-  .tagline{color:var(--muted);font-size:.92rem;margin:2px 0 18px}
-  .startup-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-left:auto}
-  .startup-bar input{background:var(--panel2);border:1px solid var(--line);color:var(--fg);
-    padding:9px 12px;border-radius:10px;font-size:.95rem;min-width:200px}
-  .gen-toggle{display:inline-flex;background:var(--panel2);border:1px solid var(--line);border-radius:10px;overflow:hidden}
-  .gen-toggle button{background:transparent;border:0;color:var(--muted);padding:9px 14px;cursor:pointer;font-size:.9rem;font-weight:600}
-  .gen-toggle button.active{background:var(--accent);color:#fff}
-  .grid-cols{display:grid;grid-template-columns:340px 1fr;gap:20px;align-items:start}
-  @media(max-width:880px){.grid-cols{grid-template-columns:1fr}}
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
-  .card .hd{padding:14px 16px;border-bottom:1px solid var(--line);font-weight:700;display:flex;align-items:center;gap:8px}
-  .card .bd{padding:16px}
-  label.fld{display:block;font-size:.78rem;color:var(--muted);margin:10px 0 5px;text-transform:uppercase;letter-spacing:.4px}
-  input,select,textarea{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--fg);
-    padding:10px 12px;border-radius:10px;font-size:.95rem;font-family:inherit}
-  textarea{resize:vertical;min-height:54px}
-  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:14px;
-    background:linear-gradient(135deg,var(--accent),#9b7bff);border:0;color:#fff;font-weight:700;
-    padding:11px;border-radius:11px;cursor:pointer;font-size:.96rem}
-  .btn:hover{filter:brightness(1.08)}
-  .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--muted);margin-top:0}
-  .role-hint{margin-top:8px;font-size:.82rem;color:var(--muted);min-height:18px}
-  .team-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
-  .member{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;
-    display:flex;flex-direction:column;transition:transform .12s,border-color .12s}
-  .member:hover{transform:translateY(-2px);border-color:#3a466b}
-  .member .m-top{padding:14px 14px 12px;border-bottom:1px dashed var(--line);position:relative}
-  .m-side{position:absolute;top:0;left:0;width:4px;height:100%}
-  .m-side.racional{background:var(--racional)} .m-side.creativo{background:var(--creativo)}
-  .m-name{font-weight:700;font-size:1.05rem;display:flex;align-items:center;gap:8px}
-  .m-title{color:var(--muted);font-size:.85rem;margin-top:2px}
-  .badge{display:inline-block;font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:20px;
-    background:var(--panel2);border:1px solid var(--line);color:var(--bright);margin-top:8px}
-  .mentor{padding:13px 14px;background:linear-gradient(180deg,rgba(124,92,255,.06),transparent)}
-  .mentor .lbl{font-size:.7rem;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
-  .mentor .who{display:flex;align-items:center;gap:10px;margin-top:6px}
-  .mentor .emoji{font-size:1.7rem;line-height:1}
-  .mentor .who b{font-size:.98rem}
-  .mentor .persona{color:var(--bright);font-size:.85rem}
-  .mentor .terr{color:var(--muted);font-size:.82rem;margin-top:6px;line-height:1.35}
-  .m-actions{margin-top:auto;display:flex;gap:6px;padding:0 14px 13px}
-  .m-actions button{flex:1;background:var(--panel2);border:1px solid var(--line);color:var(--muted);
-    border-radius:9px;padding:7px;cursor:pointer;font-size:.8rem}
-  .m-actions button:hover{color:var(--fg);border-color:var(--accent)}
-  .empty{padding:40px 20px;text-align:center;color:var(--muted)}
-  .coverage{display:flex;flex-wrap:wrap;gap:7px;margin-top:6px}
-  .chip{font-size:.74rem;padding:5px 10px;border-radius:20px;border:1px solid var(--line);background:var(--panel2);
-    display:inline-flex;align-items:center;gap:6px;cursor:pointer;color:var(--muted)}
-  .chip.filled{color:var(--fg);border-color:#3a466b}
-  .chip.vacant{opacity:.55}
-  .chip .dot{width:7px;height:7px;border-radius:50%;background:#3a466b}
-  .chip.filled .dot{background:var(--bright)}
-  .section-title{font-size:.8rem;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:0 0 8px}
-  .count{color:var(--muted);font-weight:500;font-size:.85rem}
-  .foot{margin-top:26px;color:var(--muted);font-size:.8rem;text-align:center}
+  html,body{margin:0}
+  body{font-family:"VT323",monospace;background:var(--bg);color:var(--fg);min-height:100vh;
+    font-size:19px;line-height:1.25;
+    background-image:
+      radial-gradient(900px 500px at 85% -10%, #2a1060 0%, transparent 60%),
+      radial-gradient(700px 500px at 5% 110%, #07203a 0%, transparent 55%);
+    image-rendering:pixelated;}
+  /* scanlines + CRT vignette */
+  body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:9999;
+    background:repeating-linear-gradient(0deg, rgba(0,0,0,.16) 0 1px, transparent 1px 3px);
+    mix-blend-mode:multiply;}
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:9998;
+    box-shadow:inset 0 0 160px rgba(0,0,0,.7);}
+  .px{font-family:"Press Start 2P",monospace}
+  .wrap{max-width:1180px;margin:0 auto;padding:18px 16px 70px;position:relative;z-index:1}
+  /* header */
+  header.top{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+  .title{font-size:1.15rem;line-height:1.5;color:var(--neon);
+    text-shadow:0 0 6px var(--neon),3px 3px 0 #0a3d00}
+  .title .sub{display:block;font-size:.5rem;color:var(--neon2);text-shadow:0 0 6px var(--neon2);margin-top:8px;letter-spacing:1px}
+  .hud{margin-left:auto;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .score{font-family:"Press Start 2P";font-size:.6rem;color:var(--gold);text-shadow:0 0 6px var(--gold);
+    border:2px solid var(--gold);padding:8px 11px;background:#1a1400;box-shadow:4px 4px 0 #000;line-height:1.6}
+  .score b{color:#fff}
+  input,select,textarea{font-family:"VT323",monospace;font-size:1.05rem;background:var(--ink);
+    border:2px solid var(--line);color:var(--fg);padding:8px 10px;outline:none}
+  input:focus,select,textarea:focus{border-color:var(--neon2);box-shadow:0 0 0 2px rgba(0,229,255,.25)}
+  #startupName{min-width:170px}
+  .toggle{display:inline-flex;border:2px solid var(--line);background:#0c0820;box-shadow:4px 4px 0 #000}
+  .toggle button{font-family:"Press Start 2P";font-size:.5rem;background:transparent;border:0;color:var(--muted);
+    padding:9px 11px;cursor:pointer}
+  .toggle button.active{background:var(--purple);color:#fff;text-shadow:1px 1px 0 #000}
+  .iconbtn{font-family:"Press Start 2P";font-size:.5rem;border:2px solid var(--line);background:#0c0820;color:var(--muted);
+    padding:9px 10px;cursor:pointer;box-shadow:4px 4px 0 #000}
+  .iconbtn.on{color:var(--neon);border-color:var(--neon)}
+  /* layout */
+  .cols{display:grid;grid-template-columns:320px 1fr;gap:18px;align-items:start}
+  @media(max-width:860px){.cols{grid-template-columns:1fr}}
+  .panel{border:3px solid var(--line);background:linear-gradient(180deg,#140b2c,#0d0820);box-shadow:6px 6px 0 #000}
+  .panel .ph{font-family:"Press Start 2P";font-size:.62rem;color:var(--neon2);padding:11px 12px;
+    border-bottom:2px solid var(--line);text-shadow:0 0 6px var(--neon2)}
+  .panel .pb{padding:13px}
+  label.fld{font-family:"Press Start 2P";display:block;font-size:.5rem;color:var(--muted);margin:12px 0 6px;letter-spacing:.5px}
+  label.fld:first-child{margin-top:0}
+  input,select,textarea{width:100%}
+  .btn{font-family:"Press Start 2P";font-size:.6rem;width:100%;margin-top:14px;cursor:pointer;color:#fff;
+    background:linear-gradient(180deg,var(--pink),#b3105a);border:0;border-bottom:4px solid #7a0a3d;
+    padding:13px;box-shadow:4px 4px 0 #000;text-shadow:1px 1px 0 #000}
+  .btn:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #000}
+  .btn.green{background:linear-gradient(180deg,#39ff14,#1f9e08);border-bottom-color:#0c5e00;color:#062b00;text-shadow:none}
+  .btn.blue{background:linear-gradient(180deg,#00e5ff,#0088aa);border-bottom-color:#005f77;color:#022}
+  .hint{font-size:.95rem;color:var(--muted);min-height:20px;margin-top:8px}
+  .hint b{color:var(--fg)}
+  .coverage{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .chip{font-family:"Press Start 2P";font-size:.42rem;padding:6px 7px;border:2px solid var(--line);background:#0c0820;color:#5d4f8f}
+  .chip.filled{color:var(--neon);border-color:#2a6b1f;text-shadow:0 0 5px var(--neon)}
+  /* team grid */
+  .sect{font-family:"Press Start 2P";font-size:.6rem;color:var(--gold);margin:0 0 10px;text-shadow:0 0 6px var(--gold)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+  .pc{border:3px solid var(--line);background:#0e0a22;box-shadow:5px 5px 0 #000;cursor:pointer;
+    transition:transform .08s;position:relative;overflow:hidden}
+  .pc:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 #000;border-color:var(--neon2)}
+  .pc .side{position:absolute;top:0;left:0;width:5px;height:100%}
+  .pc.racional .side{background:var(--racional);box-shadow:0 0 10px var(--racional)}
+  .pc.creativo .side{background:var(--creativo);box-shadow:0 0 10px var(--creativo)}
+  .pc .row{display:flex;gap:11px;padding:13px 13px 8px}
+  .ava{width:54px;height:54px;flex:none;display:flex;align-items:center;justify-content:center;font-size:30px;
+    border:2px solid var(--line);background:#1a1140;box-shadow:0 0 12px rgba(155,92,255,.4)}
+  .pc .nm{font-size:1.15rem;font-weight:700;color:#fff}
+  .pc .tt{font-size:.92rem;color:var(--muted)}
+  .lv{font-family:"Press Start 2P";font-size:.5rem;color:var(--gold);text-shadow:0 0 5px var(--gold);margin-top:5px}
+  .xpbar{height:12px;border:2px solid var(--line);background:#070512;margin:8px 13px 0;position:relative}
+  .xpfill{height:100%;background:repeating-linear-gradient(90deg,var(--neon) 0 6px,#23c000 6px 8px);box-shadow:0 0 8px var(--neon);transition:width .4s}
+  .pc .mentor{font-family:"Press Start 2P";font-size:.45rem;color:var(--muted);padding:9px 13px 13px;line-height:1.7}
+  .pc .mentor b{color:var(--neon2)}
+  .qbadge{position:absolute;top:8px;right:8px;font-family:"Press Start 2P";font-size:.42rem;color:#062b00;
+    background:var(--neon);padding:4px 6px;box-shadow:0 0 8px var(--neon)}
+  .empty{font-family:"Press Start 2P";font-size:.55rem;color:var(--muted);text-align:center;padding:40px 16px;line-height:2}
+  /* modal */
+  .ov{position:fixed;inset:0;z-index:200;background:rgba(4,2,12,.82);display:none;align-items:center;justify-content:center;padding:16px}
+  .ov.show{display:flex}
+  .modal{width:min(640px,96vw);max-height:92vh;overflow:auto;border:3px solid var(--neon2);
+    background:linear-gradient(180deg,#160c30,#0b0720);box-shadow:0 0 0 3px #000,8px 8px 0 #000}
+  .mh{display:flex;align-items:center;gap:13px;padding:15px;border-bottom:2px solid var(--line)}
+  .mh .ava{width:62px;height:62px;font-size:34px}
+  .mh .nm{font-size:1.3rem;color:#fff}
+  .mh .mt{font-size:.95rem;color:var(--muted)}
+  .mh .x{margin-left:auto;font-family:"Press Start 2P";font-size:.7rem;color:var(--pink);cursor:pointer;border:2px solid var(--line);padding:8px 11px;background:#0c0820}
+  .mbody{padding:15px}
+  .mentorbox{display:flex;gap:11px;align-items:flex-start;margin-bottom:6px}
+  .mentorbox .ma{font-size:38px;flex:none;filter:drop-shadow(0 0 8px var(--purple))}
+  .bubble{flex:1;border:2px solid var(--line);background:#0d0822;padding:11px;position:relative;font-size:1.05rem;color:#efe8ff;min-height:30px}
+  .bubble .who{font-family:"Press Start 2P";font-size:.5rem;color:var(--neon2);margin-bottom:7px}
+  .missions{margin-top:14px;display:flex;flex-direction:column;gap:9px}
+  .mission{display:flex;gap:10px;align-items:flex-start;border:2px solid var(--line);background:#0e0a22;padding:11px}
+  .mission.done{border-color:#2a6b1f;background:#0a1a06}
+  .mission .chk{font-family:"Press Start 2P";font-size:.7rem;width:30px;height:30px;flex:none;border:2px solid var(--line);
+    background:#070512;color:var(--neon);display:flex;align-items:center;justify-content:center;cursor:pointer}
+  .mission.done .chk{background:var(--neon);color:#062b00}
+  .mission .mx{font-size:1.05rem}
+  .mission.done .mx{color:var(--muted);text-decoration:line-through}
+  .mq{font-family:"Press Start 2P";font-size:.4rem;color:var(--gold);margin-left:auto;flex:none;align-self:center}
+  .loading{font-family:"Press Start 2P";font-size:.55rem;color:var(--neon);text-align:center;padding:14px;animation:bl 1s steps(2) infinite}
+  @keyframes bl{50%{opacity:.35}}
+  .err{color:var(--pink);font-size:1rem;border:2px solid var(--pink);padding:10px;margin-top:10px}
+  .foot{font-family:"Press Start 2P";font-size:.45rem;color:#5d4f8f;text-align:center;margin-top:24px;line-height:2.2}
+  /* level-up toast */
+  #toast{position:fixed;left:50%;top:22%;transform:translateX(-50%) scale(0);z-index:500;
+    font-family:"Press Start 2P";font-size:1rem;color:var(--gold);text-shadow:0 0 10px var(--gold),4px 4px 0 #000;
+    border:3px solid var(--gold);background:#1a1400;padding:18px 26px;box-shadow:0 0 0 3px #000;transition:transform .25s}
+  #toast.show{transform:translateX(-50%) scale(1)}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header class="top">
-    <div class="logo"><span class="sat">🛰️</span> Yarig · Consejo de Startup</div>
-    <div class="startup-bar">
-      <input id="startupName" placeholder="Nombre de tu startup…" autocomplete="off">
-      <div class="gen-toggle" id="genToggle">
-        <button data-gen="legend" class="active">⭐ Leyendas</button>
-        <button data-gen="modern">🚀 Coetáneos</button>
+    <div class="title px">YARIG<span style="color:var(--pink)"> ARCADE</span>
+      <span class="sub">CONSEJO DE STARTUP · MENTORES 1-A-1</span></div>
+    <div class="hud">
+      <div class="score">HI-SCORE<br><b id="hiScore">0</b> XP · <b id="teamLv">0</b> LV</div>
+      <input id="startupName" placeholder="TU STARTUP…" autocomplete="off">
+      <div class="toggle" id="genToggle">
+        <button data-gen="legend" class="active">★ LEYENDAS</button>
+        <button data-gen="modern">▶ COETÁNEOS</button>
       </div>
+      <button class="iconbtn on" id="sfxBtn" title="Sonido">♪ SFX</button>
     </div>
   </header>
-  <div class="tagline">Cada miembro de tu equipo tiene un consejero que le ayuda a ser mejor en su disciplina.</div>
 
-  <div class="grid-cols">
-    <!-- Alta de miembro -->
-    <div class="card">
-      <div class="hd">➕ Añadir miembro</div>
-      <div class="bd">
-        <label class="fld">Nombre</label>
-        <input id="mName" placeholder="p.ej. Carlos Silva" autocomplete="off">
-        <label class="fld">Rol en la startup</label>
+  <div class="cols">
+    <div class="panel">
+      <div class="ph">+ NEW PLAYER</div>
+      <div class="pb">
+        <label class="fld">NOMBRE</label>
+        <input id="mName" placeholder="Carlos Silva" autocomplete="off">
+        <label class="fld">ROL EN LA STARTUP</label>
         <select id="mRole"></select>
-        <div class="role-hint" id="roleHint"></div>
-        <label class="fld">Cargo / título (opcional)</label>
-        <input id="mTitle" placeholder="p.ej. Co-fundador & CEO" autocomplete="off">
-        <button class="btn" id="addBtn">Asignar consejero</button>
-
-        <p class="section-title" style="margin-top:22px">Cobertura del consejo</p>
+        <div class="hint" id="roleHint"></div>
+        <label class="fld">CARGO (OPCIONAL)</label>
+        <input id="mTitle" placeholder="Co-fundador & CEO" autocomplete="off">
+        <button class="btn" id="addBtn">► INSERT COIN</button>
+        <label class="fld" style="margin-top:20px">CONSEJO · COBERTURA</label>
         <div class="coverage" id="coverage"></div>
       </div>
     </div>
 
-    <!-- Equipo -->
-    <div class="card">
-      <div class="hd">👥 Equipo &amp; mentores <span class="count" id="teamCount"></span></div>
-      <div class="bd">
-        <div class="team-grid" id="teamGrid"></div>
-        <div class="empty" id="emptyState">Aún no hay miembros. Añade a alguien y se le asignará su consejero.</div>
-      </div>
+    <div>
+      <p class="sect px" id="teamTitle">PARTY</p>
+      <div class="grid" id="grid"></div>
+      <div class="empty" id="empty">NO PLAYERS YET<br><span style="font-size:.4rem;color:#5d4f8f">INSERTA UN MIEMBRO PARA EMPEZAR</span></div>
     </div>
   </div>
 
-  <div class="foot">MVP · datos guardados en este navegador (localStorage). Próximo: coaching del consejero sobre las tareas de cada miembro.</div>
+  <div class="foot">MVP2 · COACHING POR EL CONSEJO ADMIRANEXT · MISIONES = +XP · DATOS EN ESTE NAVEGADOR</div>
 </div>
 
-<script>
-// ── Roster real del Consejo AdmiraNext (leyendas + coetáneos) ──
-const CONSEJEROS = {
-  CEO:{order:1, role:"Chief Executive Officer", emoji:"🏛️", side:"racional", mentors:"CEO / fundador",
-    legend:{persona:"Steve Jobs", terr:"Producto, criterio y foco extremo"},
-    modern:{persona:"Elon Musk", terr:"Innovación radical y visión de futuro"}},
-  CTO:{order:2, role:"Chief Technology Officer", emoji:"⚙️", side:"racional", mentors:"CTO / lead técnico",
-    legend:{persona:"Steve Wozniak", terr:"Ingenio técnico y elegancia al construir"},
-    modern:{persona:"Jensen Huang", terr:"IA, GPUs y plataformas de cómputo"}},
-  COO:{order:3, role:"Chief Operations Officer", emoji:"📋", side:"racional", mentors:"COO / operaciones",
-    legend:{persona:"Tim Cook", terr:"Escala, disciplina y excelencia operativa"},
-    modern:{persona:"Gwynne Shotwell", terr:"Ejecución a escala y logística"}},
-  CFO:{order:4, role:"Chief Financial Officer", emoji:"💰", side:"racional", mentors:"CFO / finanzas",
-    legend:{persona:"Warren Buffett", terr:"Capital, paciencia y sostenibilidad"},
-    modern:{persona:"Ruth Porat", terr:"Gestión financiera y crecimiento sostenible"}},
-  CCO:{order:5, role:"Chief Creative Officer", emoji:"💡", side:"creativo", mentors:"CMO / marca & growth",
-    legend:{persona:"Walt Disney", terr:"Mundo de marca y experiencia memorable"},
-    modern:{persona:"John Lasseter", terr:"Animación, storytelling y creatividad"}},
-  CDO:{order:6, role:"Chief Design Officer", emoji:"🎨", side:"creativo", mentors:"Head of Design / producto",
-    legend:{persona:"Dieter Rams", terr:"Orden, función y claridad radical"},
-    modern:{persona:"Jony Ive", terr:"Diseño industrial y simplicidad"}},
-  CXO:{order:7, role:"Chief Experience Officer", emoji:"🌐", side:"creativo", mentors:"Head of CX / cliente",
-    legend:{persona:"Howard Schultz", terr:"Escenografía, inmersión y cohesión sensorial"},
-    modern:{persona:"Carlos Ratti", terr:"Ciudades inteligentes y experiencia urbana"}},
-  CSO:{order:8, role:"Chief Storytelling Officer", emoji:"📖", side:"creativo", mentors:"Head of Story / estrategia",
-    legend:{persona:"George Lucas", terr:"Storyworld, expansión y coherencia narrativa"},
-    modern:{persona:"Ryan Reynolds", terr:"Marketing viral y narrativa de marca"}},
-};
-const ROLE_KEYS = Object.keys(CONSEJEROS).sort((a,b)=>CONSEJEROS[a].order-CONSEJEROS[b].order);
+<!-- Player modal -->
+<div class="ov" id="ov">
+  <div class="modal">
+    <div class="mh">
+      <div class="ava" id="pmAva">🛰️</div>
+      <div>
+        <div class="nm" id="pmName">—</div>
+        <div class="mt" id="pmRole">—</div>
+        <div class="lv" id="pmLv">LV.1</div>
+      </div>
+      <div class="x px" id="pmClose">X</div>
+    </div>
+    <div class="mbody">
+      <div class="mentorbox">
+        <div class="ma" id="pmMentorEmoji">🏛️</div>
+        <div class="bubble">
+          <div class="who" id="pmMentorName">MENTOR</div>
+          <div id="pmAssessment">Pega las tareas/OKRs de este miembro y pide misiones a su consejero.</div>
+        </div>
+      </div>
+      <label class="fld">TAREAS / OKRs ACTUALES</label>
+      <textarea id="pmTasks" rows="3" placeholder="1) cerrar ronda pre-seed&#10;2) contratar primer comercial&#10;3) definir pricing"></textarea>
+      <button class="btn blue" id="pmAsk">⚡ PEDIR MISIONES AL MENTOR</button>
+      <div id="pmStatus"></div>
+      <div class="missions" id="pmMissions"></div>
+    </div>
+  </div>
+</div>
 
-// ── Estado persistente ──
-const LS = "yarig_startups_v1";
-let state = loadState();
-function loadState(){
-  try{ const d=JSON.parse(localStorage.getItem(LS)); if(d&&d.members) return d; }catch(e){}
-  return { startup:"", gen:"legend", members:[] };
+<div id="toast" class="px"></div>
+
+<script>
+// ── Consejo backend ──
+const COUNCIL_URLS = ["https://macmini.tail48b61c.ts.net/council","https://www.admira.live/council"];
+const COUNCIL_TOKEN = "admira2026";
+const COUNCIL_MODEL = "llama-70b"; // gratis
+const XP_PER_MISSION = 50;
+const XP_PER_LEVEL = 150;
+
+// ── Roster real del Consejo AdmiraNext ──
+const CONSEJEROS = {
+  CEO:{o:1,role:"Chief Executive Officer",emoji:"🏛️",side:"racional",mentors:"CEO / fundador",legend:"Steve Jobs",modern:"Elon Musk",terr:{legend:"Producto, criterio y foco extremo",modern:"Innovación radical y visión de futuro"}},
+  CTO:{o:2,role:"Chief Technology Officer",emoji:"⚙️",side:"racional",mentors:"CTO / lead técnico",legend:"Steve Wozniak",modern:"Jensen Huang",terr:{legend:"Ingenio técnico y elegancia al construir",modern:"IA, GPUs y plataformas de cómputo"}},
+  COO:{o:3,role:"Chief Operations Officer",emoji:"📋",side:"racional",mentors:"COO / operaciones",legend:"Tim Cook",modern:"Gwynne Shotwell",terr:{legend:"Escala, disciplina y excelencia operativa",modern:"Ejecución a escala y logística"}},
+  CFO:{o:4,role:"Chief Financial Officer",emoji:"💰",side:"racional",mentors:"CFO / finanzas",legend:"Warren Buffett",modern:"Ruth Porat",terr:{legend:"Capital, paciencia y sostenibilidad",modern:"Gestión financiera y crecimiento sostenible"}},
+  CCO:{o:5,role:"Chief Creative Officer",emoji:"💡",side:"creativo",mentors:"CMO / marca & growth",legend:"Walt Disney",modern:"John Lasseter",terr:{legend:"Mundo de marca y experiencia memorable",modern:"Animación, storytelling y creatividad"}},
+  CDO:{o:6,role:"Chief Design Officer",emoji:"🎨",side:"creativo",mentors:"Head of Design / producto",legend:"Dieter Rams",modern:"Jony Ive",terr:{legend:"Orden, función y claridad radical",modern:"Diseño industrial y simplicidad"}},
+  CXO:{o:7,role:"Chief Experience Officer",emoji:"🌐",side:"creativo",mentors:"Head of CX / cliente",legend:"Howard Schultz",modern:"Carlos Ratti",terr:{legend:"Escenografía, inmersión y cohesión sensorial",modern:"Ciudades inteligentes y experiencia urbana"}},
+  CSO:{o:8,role:"Chief Storytelling Officer",emoji:"📖",side:"creativo",mentors:"Head of Story / estrategia",legend:"George Lucas",modern:"Ryan Reynolds",terr:{legend:"Storyworld, expansión y coherencia narrativa",modern:"Marketing viral y narrativa de marca"}},
+};
+const ROLE_KEYS = Object.keys(CONSEJEROS).sort((a,b)=>CONSEJEROS[a].o-CONSEJEROS[b].o);
+const GEN_API = { legend:"leyendas", modern:"coetaneos" };
+const AVATARS = ["🦸","🧑‍🚀","🧙","🤖","🧑‍💻","🦹","🧑‍🔧","🥷","👩‍🚀","🧑‍🎤"];
+
+// ── Estado ──
+const LS="yarig_startups_v2";
+let state=load();
+function load(){
+  try{const d=JSON.parse(localStorage.getItem(LS));if(d&&d.members)return d;}catch(e){}
+  // migra v1 si existe
+  let mem=[];
+  try{const v1=JSON.parse(localStorage.getItem("yarig_startups_v1"));if(v1&&v1.members)mem=v1.members.map(m=>({...m,xp:0,missions:[],assessment:"",tasks:"",avatar:AVATARS[Math.floor(Math.random()*AVATARS.length)]}));}catch(e){}
+  return {startup:(JSON.parse(localStorage.getItem("yarig_startups_v1")||"{}").startup)||"",gen:"legend",sfx:true,members:mem};
 }
-function save(){ localStorage.setItem(LS, JSON.stringify(state)); }
-function uid(){ return "m"+Math.random().toString(36).slice(2,9); }
-function esc(s){ return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function save(){localStorage.setItem(LS,JSON.stringify(state));}
+function uid(){return "p"+Math.random().toString(36).slice(2,9);}
+function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+const $=id=>document.getElementById(id);
+
+// ── XP / niveles ──
+function levelOf(xp){return Math.floor((xp||0)/XP_PER_LEVEL)+1;}
+function xpInLevel(xp){return (xp||0)%XP_PER_LEVEL;}
+function persona(key){return CONSEJEROS[key][state.gen];}
+function terr(key){return CONSEJEROS[key].terr[state.gen];}
+
+// ── SFX (Web Audio) ──
+let actx=null;
+function beep(freq,dur,type){ if(!state.sfx)return;
+  try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();
+    const o=actx.createOscillator(),g=actx.createGain();
+    o.type=type||"square";o.frequency.value=freq;o.connect(g);g.connect(actx.destination);
+    g.gain.setValueAtTime(.08,actx.currentTime);g.gain.exponentialRampToValueAtTime(.0001,actx.currentTime+dur);
+    o.start();o.stop(actx.currentTime+dur);}catch(e){}
+}
+function sfxClick(){beep(620,.06);}
+function sfxCoin(){beep(880,.07);setTimeout(()=>beep(1240,.1),70);}
+function sfxMission(){beep(720,.05);setTimeout(()=>beep(1040,.08),60);}
+function sfxLevel(){[523,659,784,1046].forEach((f,i)=>setTimeout(()=>beep(f,.12,"triangle"),i*90));}
 
 // ── Render ──
-const $ = id => document.getElementById(id);
-
-function fillRoleSelect(){
-  $("mRole").innerHTML = ROLE_KEYS.map(k=>{
-    const c=CONSEJEROS[k];
-    return `<option value="${k}">${c.emoji} ${k} — mentoriza al ${esc(c.mentors)}</option>`;
-  }).join("");
-  updateRoleHint();
+function fillRoles(){
+  $("mRole").innerHTML=ROLE_KEYS.map(k=>`<option value="${k}">${CONSEJEROS[k].emoji} ${k} · ${esc(CONSEJEROS[k].mentors)}</option>`).join("");
+  roleHint();
 }
-function persona(key){ return CONSEJEROS[key][state.gen]; }
-function updateRoleHint(){
-  const k=$("mRole").value, c=CONSEJEROS[k], p=persona(k);
-  $("roleHint").innerHTML = `Mentor: <b>${c.emoji} ${esc(p.persona)}</b> · <span style="color:var(--muted)">${esc(p.terr)}</span>`;
-}
+function roleHint(){const k=$("mRole").value;$("roleHint").innerHTML=`MENTOR: <b>${CONSEJEROS[k].emoji} ${esc(persona(k))}</b> — ${esc(terr(k))}`;}
 
 function render(){
-  $("startupName").value = state.startup||"";
-  document.querySelectorAll("#genToggle button").forEach(b=>b.classList.toggle("active", b.dataset.gen===state.gen));
-  // team
-  const grid=$("teamGrid"), empty=$("emptyState");
-  grid.innerHTML = state.members.map(memberCard).join("");
-  empty.style.display = state.members.length? "none":"block";
-  $("teamCount").textContent = state.members.length? `· ${state.members.length} ${state.members.length===1?"miembro":"miembros"}`:"";
-  renderCoverage();
-  updateRoleHint();
+  $("startupName").value=state.startup||"";
+  $("teamTitle").textContent = (state.startup? state.startup.toUpperCase()+" · ":"")+"PARTY";
+  document.querySelectorAll("#genToggle button").forEach(b=>b.classList.toggle("active",b.dataset.gen===state.gen));
+  $("sfxBtn").classList.toggle("on",state.sfx);
+  const totalXp=state.members.reduce((s,m)=>s+(m.xp||0),0);
+  const totalLv=state.members.reduce((s,m)=>s+levelOf(m.xp),0);
+  $("hiScore").textContent=totalXp; $("teamLv").textContent=totalLv;
+  $("grid").innerHTML=state.members.map(card).join("");
+  $("empty").style.display=state.members.length?"none":"block";
+  // coverage
+  const used=new Set(state.members.map(m=>m.role));
+  $("coverage").innerHTML=ROLE_KEYS.map(k=>`<span class="chip ${used.has(k)?"filled":""}">${CONSEJEROS[k].emoji} ${k}</span>`).join("");
+  roleHint();
 }
-
-function memberCard(m){
-  const c=CONSEJEROS[m.role], p=persona(m.role);
-  return `<div class="member">
-    <div class="m-top">
-      <div class="m-side ${c.side}"></div>
-      <div class="m-name">${esc(m.name)}</div>
-      ${m.title?`<div class="m-title">${esc(m.title)}</div>`:""}
-      <span class="badge">${c.emoji} ${m.role} · ${esc(c.role)}</span>
+function card(m){
+  const c=CONSEJEROS[m.role],lv=levelOf(m.xp),pend=(m.missions||[]).filter(x=>!x.done).length;
+  const pct=Math.round(xpInLevel(m.xp)/XP_PER_LEVEL*100);
+  return `<div class="pc ${c.side}" onclick="openPlayer('${m.id}')">
+    <div class="side"></div>
+    ${pend?`<div class="qbadge">${pend} MISIÓN${pend>1?"ES":""}</div>`:""}
+    <div class="row">
+      <div class="ava">${m.avatar||"🧑‍🚀"}</div>
+      <div><div class="nm">${esc(m.name)}</div>
+        ${m.title?`<div class="tt">${esc(m.title)}</div>`:""}
+        <div class="lv">LV.${lv} · ${m.xp||0} XP</div></div>
     </div>
-    <div class="mentor">
-      <div class="lbl">Consejero asignado</div>
-      <div class="who"><span class="emoji">${c.emoji}</span>
-        <div><b>${esc(p.persona)}</b><br><span class="persona">${m.role} del Consejo</span></div></div>
-      <div class="terr">Le ayuda a mejorar en: ${esc(p.terr)}.</div>
-    </div>
-    <div class="m-actions">
-      <button onclick="cycleRole('${m.id}')">↻ Cambiar rol</button>
-      <button onclick="removeMember('${m.id}')">🗑 Quitar</button>
-    </div>
+    <div class="xpbar"><div class="xpfill" style="width:${pct}%"></div></div>
+    <div class="mentor">MENTOR ▸ <b>${c.emoji} ${esc(persona(m.role))}</b><br>${m.role} · ${esc(c.role)}</div>
   </div>`;
 }
 
-function renderCoverage(){
-  const used = new Set(state.members.map(m=>m.role));
-  $("coverage").innerHTML = ROLE_KEYS.map(k=>{
-    const c=CONSEJEROS[k], filled=used.has(k);
-    return `<span class="chip ${filled?"filled":"vacant"}" title="${filled?"Cubierto":"Sin miembro asignado"}">
-      <span class="dot"></span>${c.emoji} ${k}</span>`;
-  }).join("");
+// ── Acciones equipo ──
+function addMember(){
+  const name=$("mName").value.trim(); if(!name){$("mName").focus();return;}
+  state.members.push({id:uid(),name,role:$("mRole").value,title:$("mTitle").value.trim(),
+    xp:0,missions:[],assessment:"",tasks:"",avatar:AVATARS[Math.floor(Math.random()*AVATARS.length)]});
+  $("mName").value="";$("mTitle").value="";save();render();sfxCoin();$("mName").focus();
 }
 
-// ── Acciones ──
-function addMember(){
-  const name=$("mName").value.trim();
-  if(!name){ $("mName").focus(); return; }
-  state.members.push({ id:uid(), name, role:$("mRole").value, title:$("mTitle").value.trim() });
-  $("mName").value=""; $("mTitle").value="";
-  save(); render(); $("mName").focus();
+// ── Modal jugador ──
+let curId=null;
+function openPlayer(id){
+  const m=state.members.find(x=>x.id===id); if(!m)return; curId=id;
+  const c=CONSEJEROS[m.role];
+  $("pmAva").textContent=m.avatar||"🧑‍🚀";
+  $("pmName").textContent=m.name;
+  $("pmRole").textContent=(m.title?m.title+" · ":"")+m.role+" · "+c.role;
+  $("pmLv").textContent="LV."+levelOf(m.xp)+" · "+(m.xp||0)+" XP";
+  $("pmMentorEmoji").textContent=c.emoji;
+  $("pmMentorName").textContent="MENTOR ▸ "+persona(m.role).toUpperCase();
+  $("pmAssessment").textContent=m.assessment||`Pega las tareas/OKRs de ${m.name} y pide misiones a ${persona(m.role)}.`;
+  $("pmTasks").value=m.tasks||"";
+  $("pmStatus").innerHTML="";
+  renderMissions(m);
+  $("ov").classList.add("show"); sfxClick();
 }
-function removeMember(id){
-  state.members = state.members.filter(m=>m.id!==id); save(); render();
+function closePlayer(){$("ov").classList.remove("show");curId=null;}
+function renderMissions(m){
+  $("pmMissions").innerHTML=(m.missions||[]).map((q,i)=>`
+    <div class="mission ${q.done?"done":""}">
+      <div class="chk" onclick="toggleMission(${i})">${q.done?"✓":""}</div>
+      <div class="mx">${esc(q.text)}</div>
+      <div class="mq">+${XP_PER_MISSION}XP</div>
+    </div>`).join("");
 }
-function cycleRole(id){
-  const m=state.members.find(x=>x.id===id); if(!m) return;
-  const i=ROLE_KEYS.indexOf(m.role); m.role=ROLE_KEYS[(i+1)%ROLE_KEYS.length]; save(); render();
+function toggleMission(i){
+  const m=state.members.find(x=>x.id===curId); if(!m)return;
+  const q=m.missions[i]; const before=levelOf(m.xp);
+  if(!q.done){ q.done=true; m.xp=(m.xp||0)+XP_PER_MISSION; sfxMission();
+    const after=levelOf(m.xp);
+    if(after>before){ showToast("LEVEL UP! LV."+after); sfxLevel(); }
+  } else { q.done=false; m.xp=Math.max(0,(m.xp||0)-XP_PER_MISSION); }
+  save(); renderMissions(m); $("pmLv").textContent="LV."+levelOf(m.xp)+" · "+(m.xp||0)+" XP"; render();
+}
+function showToast(t){const el=$("toast");el.textContent=t;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),1600);}
+
+// ── Coaching: pedir misiones al consejero (Consejo LLM) ──
+async function askMentor(){
+  const m=state.members.find(x=>x.id===curId); if(!m)return;
+  const c=CONSEJEROS[m.role], who=persona(m.role);
+  m.tasks=$("pmTasks").value.trim();
+  if(!m.tasks){$("pmTasks").focus();return;}
+  save();
+  $("pmStatus").innerHTML=`<div class="loading">${who.toUpperCase()} ESTÁ PENSANDO…</div>`;
+  $("pmAsk").disabled=true;
+  const prompt=`Eres ${who}, mentor de ${m.name} (${m.role} de la startup ${state.startup||"la startup"}). `+
+    `Tareas/OKRs actuales de ${m.name}:\n${m.tasks}\n\n`+
+    `Responde en español, en tu voz característica. Primero UNA o DOS frases evaluando su foco. `+
+    `Luego EXACTAMENTE 3 misiones de mejora concretas y accionables, cada una en su propia línea con el prefijo "MISION: ".`;
+  try{
+    const data=await councilAsk(m.role, prompt);
+    const content=String(data.content||"");
+    const missions=[]; const assessLines=[];
+    content.split(/\n+/).forEach(line=>{
+      const mm=line.match(/^\s*(?:MISION|MISIÓN|MISSION)\s*[:\-)]\s*(.+)$/i)
+            || line.match(/^\s*\d\s*[\).\-]\s*(.+)$/);
+      if(mm) missions.push({text:mm[1].replace(/^["“]|["”]$/g,"").trim(),done:false});
+      else if(line.trim()) assessLines.push(line.trim());
+    });
+    m.assessment = assessLines.join(" ") || "Misiones listas.";
+    m.missions = missions.slice(0,3).length? missions.slice(0,3)
+               : [{text:content.slice(0,160),done:false}];
+    save();
+    $("pmAssessment").textContent=m.assessment;
+    $("pmStatus").innerHTML="";
+    renderMissions(m); render(); sfxCoin();
+  }catch(err){
+    $("pmStatus").innerHTML=`<div class="err">⚠ ${esc(who)} está OFFLINE (Consejo no responde). ${esc(err.message||err)}<br>Revisa que admira.live / el backend esté vivo.</div>`;
+  }finally{ $("pmAsk").disabled=false; }
+}
+async function councilAsk(roleKey, message){
+  let lastErr=null;
+  for(const base of COUNCIL_URLS){
+    try{
+      const res=await fetch(base+"/api/council/ask-one",{
+        method:"POST",
+        headers:{"Content-Type":"application/json","X-Council-Token":COUNCIL_TOKEN},
+        body:JSON.stringify({agent_name:roleKey,generation:GEN_API[state.gen],llm:COUNCIL_MODEL,message}),
+        signal:AbortSignal.timeout(90000)
+      });
+      if(!res.ok){lastErr="HTTP "+res.status;continue;}
+      return await res.json();
+    }catch(e){lastErr=e.message||String(e);}
+  }
+  throw new Error(lastErr||"sin conexión");
 }
 
 // ── Wiring ──
-fillRoleSelect();
-$("addBtn").onclick = addMember;
-$("mName").addEventListener("keydown", e=>{ if(e.key==="Enter") addMember(); });
-$("mRole").addEventListener("change", updateRoleHint);
-$("startupName").addEventListener("input", e=>{ state.startup=e.target.value; save(); });
-document.querySelectorAll("#genToggle button").forEach(b=>{
-  b.onclick = ()=>{ state.gen=b.dataset.gen; save(); render(); };
-});
+fillRoles();
+$("addBtn").onclick=addMember;
+$("mName").addEventListener("keydown",e=>{if(e.key==="Enter")addMember();});
+$("mRole").addEventListener("change",roleHint);
+$("startupName").addEventListener("input",e=>{state.startup=e.target.value;save();$("teamTitle").textContent=(state.startup?state.startup.toUpperCase()+" · ":"")+"PARTY";});
+document.querySelectorAll("#genToggle button").forEach(b=>b.onclick=()=>{state.gen=b.dataset.gen;save();render();sfxClick();});
+$("sfxBtn").onclick=()=>{state.sfx=!state.sfx;save();render();if(state.sfx)sfxClick();};
+$("pmClose").onclick=closePlayer;
+$("pmAsk").onclick=askMentor;
+$("ov").addEventListener("click",e=>{if(e.target===$("ov"))closePlayer();});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closePlayer();});
 render();
 </script>
 </body>
