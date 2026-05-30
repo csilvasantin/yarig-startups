@@ -933,7 +933,11 @@ async function yarigAction(id,action,desc){
   if(!confirm(`¿${verb} esta tarea en Yarig.ai REAL?\n\n"${desc.replace(/&#39;/g,"'")}"\n\n(Escribe en producción)`))return;
   try{
     const res=await yarigWrite(action,{id});
-    if(res&&res.ok&&res.data!==false){ showToast("🛰️ "+verb+" OK"); sfxLevel(); }
+    // start devuelve el objeto tarea (truthy); finish/pause usan json_close_task,
+    // que devuelve false EN ÉXITO (Yarig: result is not None). Por eso distinguimos.
+    const ok = action==="start" ? !!(res&&res.ok&&res.data&&res.data!==false)
+                                 : !!(res&&res.ok&&res.data!==undefined&&res.data!==null);
+    if(ok){ showToast("🛰️ "+verb+" OK"); sfxLevel(); }
     else { showToast("⚠ Yarig rechazó la acción"); }
     yarigCache.at=0; // invalida cache
     if(curId&&$("ov").classList.contains("show"))syncPlayerYarig(); else syncYarig();
