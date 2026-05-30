@@ -1,1040 +1,423 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>YARIG ARCADE · Liga de Startups</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --bg:#0a0612; --bg2:#120a24; --ink:#1c1140; --line:#3b2a6b;
-    --fg:#f4ecff; --muted:#a99bd6; --neon:#39ff14; --neon2:#00e5ff;
-    --pink:#ff2e88; --gold:#ffd200; --purple:#9b5cff;
-    --racional:#ff3b3b; --creativo:#22d3ff;
-  }
-  *{box-sizing:border-box}
-  html,body{margin:0}
-  body{font-family:"VT323",monospace;background:var(--bg);color:var(--fg);min-height:100vh;
-    font-size:19px;line-height:1.25;
-    background-image:
-      radial-gradient(900px 500px at 85% -10%, #2a1060 0%, transparent 60%),
-      radial-gradient(700px 500px at 5% 110%, #07203a 0%, transparent 55%);
-    image-rendering:pixelated;}
-  body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:9999;
-    background:repeating-linear-gradient(0deg, rgba(0,0,0,.16) 0 1px, transparent 1px 3px);
-    mix-blend-mode:multiply;}
-  body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:9998;
-    box-shadow:inset 0 0 160px rgba(0,0,0,.7);}
-  .px{font-family:"Press Start 2P",monospace}
-  .wrap{max-width:1180px;margin:0 auto;padding:18px 16px 70px;position:relative;z-index:1}
-  header.top{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:14px}
-  .title{font-size:1.15rem;line-height:1.5;color:var(--neon);
-    text-shadow:0 0 6px var(--neon),3px 3px 0 #0a3d00}
-  .title .sub{display:block;font-size:.5rem;color:var(--neon2);text-shadow:0 0 6px var(--neon2);margin-top:8px;letter-spacing:1px}
-  .hud{margin-left:auto;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-  .score{font-family:"Press Start 2P";font-size:.6rem;color:var(--gold);text-shadow:0 0 6px var(--gold);
-    border:2px solid var(--gold);padding:8px 11px;background:#1a1400;box-shadow:4px 4px 0 #000;line-height:1.6}
-  .score b{color:#fff}
-  input,select,textarea{font-family:"VT323",monospace;font-size:1.05rem;background:var(--ink);
-    border:2px solid var(--line);color:var(--fg);padding:8px 10px;outline:none}
-  input:focus,select,textarea:focus{border-color:var(--neon2);box-shadow:0 0 0 2px rgba(0,229,255,.25)}
-  .toggle{display:inline-flex;border:2px solid var(--line);background:#0c0820;box-shadow:4px 4px 0 #000}
-  .toggle button{font-family:"Press Start 2P";font-size:.5rem;background:transparent;border:0;color:var(--muted);
-    padding:9px 11px;cursor:pointer}
-  .toggle button.active{background:var(--purple);color:#fff;text-shadow:1px 1px 0 #000}
-  .iconbtn{font-family:"Press Start 2P";font-size:.5rem;border:2px solid var(--line);background:#0c0820;color:var(--muted);
-    padding:9px 10px;cursor:pointer;box-shadow:4px 4px 0 #000}
-  .iconbtn.on{color:var(--neon);border-color:var(--neon)}
-  .cols{display:grid;grid-template-columns:320px 1fr;gap:18px;align-items:start}
-  @media(max-width:860px){.cols{grid-template-columns:1fr}}
-  .panel{border:3px solid var(--line);background:linear-gradient(180deg,#140b2c,#0d0820);box-shadow:6px 6px 0 #000}
-  .panel .ph{font-family:"Press Start 2P";font-size:.62rem;color:var(--neon2);padding:11px 12px;
-    border-bottom:2px solid var(--line);text-shadow:0 0 6px var(--neon2)}
-  .panel .pb{padding:13px}
-  label.fld{font-family:"Press Start 2P";display:block;font-size:.5rem;color:var(--muted);margin:12px 0 6px;letter-spacing:.5px}
-  label.fld:first-child{margin-top:0}
-  input,select,textarea{width:100%}
-  .btn{font-family:"Press Start 2P";font-size:.6rem;width:100%;margin-top:14px;cursor:pointer;color:#fff;
-    background:linear-gradient(180deg,var(--pink),#b3105a);border:0;border-bottom:4px solid #7a0a3d;
-    padding:13px;box-shadow:4px 4px 0 #000;text-shadow:1px 1px 0 #000}
-  .btn:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #000}
-  .btn.green{background:linear-gradient(180deg,#39ff14,#1f9e08);border-bottom-color:#0c5e00;color:#062b00;text-shadow:none}
-  .btn.blue{background:linear-gradient(180deg,#00e5ff,#0088aa);border-bottom-color:#005f77;color:#022}
-  .row2{display:flex;gap:8px}
-  .row2 select{flex:1}
-  .hint{font-size:.95rem;color:var(--muted);min-height:20px;margin-top:8px}
-  .hint b{color:var(--fg)}
-  .coverage{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
-  .chip{font-family:"Press Start 2P";font-size:.42rem;padding:6px 7px;border:2px solid var(--line);background:#0c0820;color:#5d4f8f}
-  .chip.filled{color:var(--neon);border-color:#2a6b1f;text-shadow:0 0 5px var(--neon)}
-  .sect{font-family:"Press Start 2P";font-size:.6rem;color:var(--gold);margin:0 0 10px;text-shadow:0 0 6px var(--gold)}
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
-  .pc{border:3px solid var(--line);background:#0e0a22;box-shadow:5px 5px 0 #000;cursor:pointer;
-    transition:transform .08s;position:relative;overflow:hidden}
-  .pc:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 #000;border-color:var(--neon2)}
-  .pc .side{position:absolute;top:0;left:0;width:5px;height:100%}
-  .pc.racional .side{background:var(--racional);box-shadow:0 0 10px var(--racional)}
-  .pc.creativo .side{background:var(--creativo);box-shadow:0 0 10px var(--creativo)}
-  .pc .row{display:flex;gap:11px;padding:13px 13px 8px}
-  .ava{width:54px;height:54px;flex:none;display:flex;align-items:center;justify-content:center;font-size:30px;
-    border:2px solid var(--line);background:#1a1140;box-shadow:0 0 12px rgba(155,92,255,.4)}
-  .pc .nm{font-size:1.15rem;font-weight:700;color:#fff}
-  .pc .tt{font-size:.92rem;color:var(--muted)}
-  .lv{font-family:"Press Start 2P";font-size:.5rem;color:var(--gold);text-shadow:0 0 5px var(--gold);margin-top:5px}
-  .xpbar{height:12px;border:2px solid var(--line);background:#070512;margin:8px 13px 0;position:relative}
-  .xpfill{height:100%;background:repeating-linear-gradient(90deg,var(--neon) 0 6px,#23c000 6px 8px);box-shadow:0 0 8px var(--neon);transition:width .4s}
-  .pc .mentor{font-family:"Press Start 2P";font-size:.45rem;color:var(--muted);padding:9px 13px 13px;line-height:1.7}
-  .pc .mentor b{color:var(--neon2)}
-  .deptchip{display:inline-block;font-family:"Press Start 2P";font-size:.4rem;color:var(--purple);border:1px solid var(--line);padding:3px 6px;margin:0 13px 11px}
-  .qbadge{position:absolute;top:8px;right:8px;font-family:"Press Start 2P";font-size:.42rem;color:#062b00;
-    background:var(--neon);padding:4px 6px;box-shadow:0 0 8px var(--neon)}
-  .empty{font-family:"Press Start 2P";font-size:.55rem;color:var(--muted);text-align:center;padding:40px 16px;line-height:2}
-  .ov{position:fixed;inset:0;z-index:200;background:rgba(4,2,12,.82);display:none;align-items:center;justify-content:center;padding:16px}
-  .ov.show{display:flex}
-  .modal{width:min(640px,96vw);max-height:92vh;overflow:auto;border:3px solid var(--neon2);
-    background:linear-gradient(180deg,#160c30,#0b0720);box-shadow:0 0 0 3px #000,8px 8px 0 #000}
-  .mh{display:flex;align-items:center;gap:13px;padding:15px;border-bottom:2px solid var(--line)}
-  .mh .ava{width:62px;height:62px;font-size:34px}
-  .mh .nm{font-size:1.3rem;color:#fff}
-  .mh .mt{font-size:.95rem;color:var(--muted)}
-  .mh .x{margin-left:auto;font-family:"Press Start 2P";font-size:.7rem;color:var(--pink);cursor:pointer;border:2px solid var(--line);padding:8px 11px;background:#0c0820}
-  .mbody{padding:15px}
-  .mentorbox{display:flex;gap:11px;align-items:flex-start;margin-bottom:6px}
-  .mentorbox .ma{font-size:38px;flex:none;filter:drop-shadow(0 0 8px var(--purple))}
-  .bubble{flex:1;border:2px solid var(--line);background:#0d0822;padding:11px;position:relative;font-size:1.05rem;color:#efe8ff;min-height:30px}
-  .bubble .who{font-family:"Press Start 2P";font-size:.5rem;color:var(--neon2);margin-bottom:7px}
-  .missions{margin-top:14px;display:flex;flex-direction:column;gap:9px}
-  .mission{display:flex;gap:10px;align-items:flex-start;border:2px solid var(--line);background:#0e0a22;padding:11px}
-  .mission.done{border-color:#2a6b1f;background:#0a1a06}
-  .mission .chk{font-family:"Press Start 2P";font-size:.7rem;width:30px;height:30px;flex:none;border:2px solid var(--line);
-    background:#070512;color:var(--neon);display:flex;align-items:center;justify-content:center;cursor:pointer}
-  .mission.done .chk{background:var(--neon);color:#062b00}
-  .mission .mx{font-size:1.05rem}
-  .mission.done .mx{color:var(--muted);text-decoration:line-through}
-  .mq{font-family:"Press Start 2P";font-size:.4rem;color:var(--gold);margin-left:auto;flex:none;align-self:center}
-  .loading{font-family:"Press Start 2P";font-size:.55rem;color:var(--neon);text-align:center;padding:14px;animation:bl 1s steps(2) infinite}
-  @keyframes bl{50%{opacity:.35}}
-  .err{color:var(--pink);font-size:1rem;border:2px solid var(--pink);padding:10px;margin-top:10px}
-  .foot{font-family:"Press Start 2P";font-size:.45rem;color:#5d4f8f;text-align:center;margin-top:24px;line-height:2.2}
-  .tabs{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
-  .tab{font-family:"Press Start 2P";font-size:.55rem;color:var(--muted);background:#0c0820;border:2px solid var(--line);
-    border-bottom:4px solid #000;padding:11px 13px;cursor:pointer;box-shadow:3px 3px 0 #000}
-  .tab.active{color:var(--gold);border-color:var(--gold);text-shadow:0 0 6px var(--gold)}
-  .tab:active{transform:translate(1px,1px)}
-  .streak{position:absolute;bottom:9px;right:10px;font-family:"Press Start 2P";font-size:.5rem;color:var(--gold);text-shadow:0 0 6px #ff7b00}
-  .rank{border:3px solid var(--line);background:#0c0820;box-shadow:5px 5px 0 #000}
-  .rrow{display:flex;align-items:center;gap:12px;padding:12px 13px;border-bottom:2px solid #1c1140}
-  .rrow:last-child{border-bottom:0}
-  .rrow .pos{font-family:"Press Start 2P";font-size:.7rem;width:42px;text-align:center;color:var(--muted)}
-  .rrow.p1 .pos{color:var(--gold);text-shadow:0 0 8px var(--gold)}
-  .rrow.p2 .pos{color:#cfd8ff} .rrow.p3 .pos{color:#ff9d5c}
-  .rrow.p1{background:linear-gradient(90deg,rgba(255,210,0,.10),transparent)}
-  .rrow.active-su{outline:2px solid var(--neon2);outline-offset:-2px}
-  .rrow .rava{font-size:26px;width:40px;text-align:center}
-  .rrow .rnm{font-size:1.15rem;color:#fff}
-  .rrow .rsub{font-size:.9rem;color:var(--muted)}
-  .rrow .rxp{margin-left:auto;text-align:right;flex:none}
-  .rrow .rxp b{font-family:"Press Start 2P";font-size:.6rem;color:var(--neon);text-shadow:0 0 6px var(--neon)}
-  .rrow .rxp small{display:block;font-size:.85rem;color:var(--gold)}
-  .rrow .go{font-family:"Press Start 2P";font-size:.45rem;color:var(--neon2);cursor:pointer;border:2px solid var(--line);background:#0c0820;padding:7px 8px;margin-left:10px;flex:none}
-  .medgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
-  .medal{border:2px solid var(--line);background:#0c0820;box-shadow:4px 4px 0 #000;padding:14px 12px;text-align:center;opacity:.4;filter:grayscale(1)}
-  .medal.got{opacity:1;filter:none;border-color:var(--gold);box-shadow:0 0 14px rgba(255,210,0,.3),4px 4px 0 #000}
-  .medal .me{font-size:34px;line-height:1.4}
-  .medal .mn{font-family:"Press Start 2P";font-size:.5rem;color:var(--gold);margin-top:6px;line-height:1.5}
-  .medal .md{font-size:.92rem;color:var(--muted);margin-top:6px;line-height:1.25}
-  .medal.got .mn{text-shadow:0 0 6px var(--gold)}
-  /* mis tareas (workspace por jugador) */
-  .jbar{display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
-  .jbar .jlbl{font-size:.92rem;color:var(--muted);margin-right:4px}
-  .jb{font-family:"Press Start 2P";font-size:.43rem;border:2px solid var(--line);background:#0c0820;color:var(--neon);padding:8px 9px;cursor:pointer;box-shadow:3px 3px 0 #000}
-  .jb.red{color:var(--pink);border-color:#7a0a3d}
-  .jb.on{color:var(--gold);border-color:var(--gold);text-shadow:0 0 5px var(--gold)}
-  .addtask{border:2px dashed var(--line);padding:11px;margin-bottom:13px}
-  .addtask input,.addtask select{margin-bottom:7px}
-  .taskfilter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:11px}
-  .tf{font-family:"Press Start 2P";font-size:.42rem;border:2px solid var(--line);background:#0c0820;color:var(--muted);padding:6px 8px;cursor:pointer}
-  .tf.active{color:#fff;border-color:var(--neon2)}
-  .tk{border:2px solid var(--line);background:#0e0a22;box-shadow:3px 3px 0 #000;padding:11px 11px 11px 14px;margin-bottom:9px;position:relative;overflow:hidden}
-  .tk.proc{border-color:#2a6b1f}
-  .tk .area{position:absolute;left:0;top:0;width:5px;height:100%}
-  .tk .td{font-size:1.06rem;color:#fff;margin-bottom:5px}
-  .tk.fin .td{color:var(--muted);text-decoration:line-through}
-  .tk .tm{display:flex;gap:9px;flex-wrap:wrap;align-items:center;font-size:.9rem;color:var(--muted)}
-  .tk .tact{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
-  .tb{font-family:"Press Start 2P";font-size:.42rem;border:2px solid var(--line);background:#0c0820;color:var(--neon);padding:7px 8px;cursor:pointer}
-  .tb.blue{color:var(--neon2)} .tb.red{color:var(--pink)} .tb.go{color:var(--gold);border-color:var(--gold)}
-  .tk .timer{font-family:"Press Start 2P";font-size:.5rem;color:var(--gold);text-shadow:0 0 5px var(--gold)}
-  /* yarig real */
-  .ybar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:0 0 6px}
-  .ystat{font-family:"Press Start 2P";font-size:.55rem;border:2px solid var(--neon2);color:var(--neon2);background:#06141a;padding:10px 12px;box-shadow:3px 3px 0 #000;line-height:1.6}
-  .ystat b{color:#fff;font-size:.7rem}
-  .ytask{border:3px solid var(--line);background:#0e0a22;box-shadow:4px 4px 0 #000;padding:13px;margin-bottom:11px}
-  .ytask .yh{font-size:.92rem;color:var(--muted)}
-  .ytask .yd{font-size:1.12rem;color:#fff;margin:5px 0}
-  .ytask .ymeta{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-top:8px;font-size:.95rem;color:var(--muted)}
-  .sbadge{font-family:"Press Start 2P";font-size:.45rem;padding:5px 8px;border:2px solid}
-  .sbadge.proc{color:var(--neon);border-color:#2a6b1f;background:#0a1a06}
-  .sbadge.pend{color:var(--neon2);border-color:#155;background:#04141a}
-  .sbadge.fin{color:var(--muted);border-color:var(--line);background:#0c0820}
-  .ysec{font-family:"Press Start 2P";font-size:.5rem;color:var(--gold);margin:18px 0 10px;text-shadow:0 0 6px var(--gold)}
-  .docbody{padding:16px;max-height:78vh;overflow:auto}
-  .dlvl{border-left:3px solid var(--neon2);padding:2px 0 10px 12px;margin-bottom:4px}
-  .dlvl .dt{font-family:"Press Start 2P";font-size:.55rem;color:var(--neon);margin-bottom:6px;text-shadow:0 0 5px var(--neon)}
-  .dlvl .dd{font-size:1.04rem;color:var(--muted);line-height:1.3}
-  #toast{position:fixed;left:50%;top:22%;transform:translateX(-50%) scale(0);z-index:500;
-    font-family:"Press Start 2P";font-size:1rem;color:var(--gold);text-shadow:0 0 10px var(--gold),4px 4px 0 #000;
-    border:3px solid var(--gold);background:#1a1400;padding:18px 26px;box-shadow:0 0 0 3px #000;transition:transform .25s}
-  #toast.show{transform:translateX(-50%) scale(1)}
-</style>
-</head>
-<body>
-<div class="wrap">
-  <header class="top">
-    <div class="title px">YARIG<span style="color:var(--pink)"> ARCADE</span>
-      <span class="sub">LIGA DE STARTUPS · MENTORES DEL CONSEJO</span></div>
-    <div class="hud">
-      <div class="score">HI-SCORE<br><b id="hiScore">0</b> XP · <b id="teamLv">0</b> LV</div>
-      <select id="startupSel" class="px" title="Startup activa"></select>
-      <button class="iconbtn" id="newStartupBtn" title="Nueva startup">＋ STARTUP</button>
-      <button class="iconbtn" id="renStartupBtn" title="Renombrar startup">✎</button>
-      <input id="leagueCode" class="px" placeholder="CÓDIGO LIGA" autocomplete="off" style="width:120px;font-size:.5rem;padding:10px 8px" title="Código de liga compartido">
-      <button class="iconbtn" id="cloudBtn" title="Sincronizar liga en la nube">☁ SYNC</button>
-      <div class="toggle" id="genToggle">
-        <button data-gen="legend" class="active">★ LEYENDAS</button>
-        <button data-gen="modern">▶ COETÁNEOS</button>
-      </div>
-      <button class="iconbtn on" id="sfxBtn" title="Sonido">♪ SFX</button>
-      <button class="iconbtn" id="docsBtn" title="Docs / evolución">❔ DOCS</button>
-    </div>
-  </header>
 
-  <div class="cols">
-    <div class="panel">
-      <div class="ph">+ NEW PLAYER</div>
-      <div class="pb">
-        <label class="fld">NOMBRE</label>
-        <input id="mName" placeholder="Carlos Silva" autocomplete="off">
-        <label class="fld">ROL EN LA STARTUP</label>
-        <select id="mRole"></select>
-        <div class="hint" id="roleHint"></div>
-        <label class="fld">DEPARTAMENTO</label>
-        <div class="row2">
-          <select id="mDept"></select>
-          <button class="iconbtn" id="newDeptBtn" title="Nuevo departamento">＋</button>
-        </div>
-        <label class="fld">CARGO (OPCIONAL)</label>
-        <input id="mTitle" placeholder="Co-fundador & CEO" autocomplete="off">
-        <button class="btn" id="addBtn">► INSERT COIN</button>
-        <label class="fld" style="margin-top:20px">CONSEJO · COBERTURA</label>
-        <div class="coverage" id="coverage"></div>
-      </div>
-    </div>
+  <!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-KCZZKDBX');</script>
+  <!-- End Google Tag Manager -->
 
-    <div>
-      <div class="tabs" id="tabs">
-        <button class="tab active" data-view="liga">🥇 LIGA</button>
-        <button class="tab" data-view="party">🎮 PARTY</button>
-        <button class="tab" data-view="depts">🏢 DEPTS</button>
-        <button class="tab" data-view="rank">🏆 RANKING</button>
-        <button class="tab" data-view="medals">🎖️ MEDALLAS</button>
-        <button class="tab" data-view="yarig">🛰️ YARIG</button>
-      </div>
-      <div id="view-liga">
-        <p class="sect px">🥇 LIGA DE STARTUPS</p>
-        <div class="rank" id="ligaList"></div>
-      </div>
-      <div id="view-party" style="display:none">
-        <p class="sect px" id="teamTitle">PARTY</p>
-        <div class="grid" id="grid"></div>
-        <div class="empty" id="empty">NO PLAYERS YET<br><span style="font-size:.4rem;color:#5d4f8f">INSERTA UN MIEMBRO PARA EMPEZAR</span></div>
-      </div>
-      <div id="view-depts" style="display:none">
-        <p class="sect px" id="deptTitle">🏢 DEPARTAMENTOS</p>
-        <div class="rank" id="deptList"></div>
-        <div class="empty" id="deptEmpty" style="display:none">SIN DEPARTAMENTOS · CREA UNO CON ＋</div>
-      </div>
-      <div id="view-rank" style="display:none">
-        <p class="sect px" id="rankTitle">🏆 LEADERBOARD</p>
-        <div class="rank" id="rankList"></div>
-        <div class="empty" id="rankEmpty" style="display:none">SIN JUGADORES EN ESTA STARTUP</div>
-      </div>
-      <div id="view-medals" style="display:none">
-        <p class="sect px" id="medTitle">🎖️ MEDALLAS</p>
-        <div class="medgrid" id="medGrid"></div>
-      </div>
-      <div id="view-yarig" style="display:none">
-        <p class="sect px">🛰️ YARIG.AI · DATOS REALES</p>
-        <button class="btn blue" id="yarigSync" style="max-width:280px">🔄 SINCRONIZAR YARIG</button>
-        <div id="yarigBody" style="margin-top:14px"></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="foot">LIGA DE STARTUPS · DEPARTAMENTOS · COACHING DEL CONSEJO ADMIRANEXT · DATOS EN ESTE NAVEGADOR</div>
-</div>
-
-<div class="ov" id="ov">
-  <div class="modal">
-    <div class="mh">
-      <div class="ava" id="pmAva">🛰️</div>
-      <div>
-        <div class="nm" id="pmName">—</div>
-        <div class="mt" id="pmRole">—</div>
-        <div class="lv" id="pmLv">LV.1</div>
-      </div>
-      <div class="x px" id="pmClose">X</div>
-    </div>
-    <div class="mbody">
-      <div class="tabs" id="pmTabs" style="margin-bottom:13px">
-        <button class="tab active" data-mtab="coach">⚡ COACHING</button>
-        <button class="tab" data-mtab="tasks">📋 MIS TAREAS</button>
-      </div>
-      <div id="pmCoach">
-        <div class="mentorbox">
-          <div class="ma" id="pmMentorEmoji">🏛️</div>
-          <div class="bubble">
-            <div class="who" id="pmMentorName">MENTOR</div>
-            <div id="pmAssessment">Pega las tareas/OKRs de este miembro y pide misiones a su consejero.</div>
-          </div>
-        </div>
-        <label class="fld">TAREAS / OKRs ACTUALES</label>
-        <textarea id="pmTasks" rows="3" placeholder="1) cerrar ronda pre-seed&#10;2) contratar primer comercial&#10;3) definir pricing"></textarea>
-        <button class="btn blue" id="pmAsk">⚡ PEDIR MISIONES AL MENTOR</button>
-        <div id="pmStatus"></div>
-        <div class="missions" id="pmMissions"></div>
-      </div>
-      <div id="pmTasksView" style="display:none">
-        <div style="border:2px solid var(--neon2);padding:11px;margin-bottom:13px">
-          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:9px">
-            <span class="px" style="color:var(--neon2);font-size:.5rem;text-shadow:0 0 5px var(--neon2)">🛰️ TAREAS REALES · YARIG</span>
-            <button class="jb on" onclick="syncPlayerYarig()">🔄 SINCRONIZAR</button>
-            <button class="jb" onclick="mapPlayerYarig()">🔗 MAPEAR</button>
-          </div>
-          <div id="pmYarigTasks"><div style="font-size:.92rem;color:var(--muted)">Pulsa SINCRONIZAR para traer las tareas reales de esta persona desde Yarig.ai.</div></div>
-        </div>
-        <div class="jbar" id="pmJourney"></div>
-        <div class="addtask">
-          <input id="ntDesc" placeholder="Descripción de la tarea…" autocomplete="off">
-          <div class="row2">
-            <select id="ntArea"></select>
-            <input id="ntProj" placeholder="Proyecto" autocomplete="off" style="flex:1">
-            <input id="ntEst" type="number" min="0" step="0.5" placeholder="Est.h" style="width:78px">
-          </div>
-          <button class="btn green" id="ntAdd">➕ AÑADIR (LOCAL)</button>
-          <button class="btn blue" id="ntAddYarig" style="margin-top:8px">🛰️ AÑADIR EN YARIG.AI (REAL)</button>
-        </div>
-        <div class="taskfilter" id="taskFilter"></div>
-        <div id="pmTaskList"></div>
-        <p class="ysec" id="histTitle" style="margin-top:14px;display:none">🗂 HISTORIAL</p>
-        <div id="pmHistory"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="ov" id="docOv">
-  <div class="modal">
-    <div class="mh">
-      <div class="ava">📖</div>
-      <div><div class="nm">DOCS · EVOLUCIÓN</div><div class="mt">Yarig Arcade — registro de cambios</div></div>
-      <div class="x px" id="docClose">X</div>
-    </div>
-    <div class="docbody" id="docBody"></div>
-  </div>
-</div>
-
-<div id="toast" class="px"></div>
-
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-LX7HV9DFYB"></script>
 <script>
-// ── Consejo backend ──
-const COUNCIL_URLS = ["https://macmini.tail48b61c.ts.net/council","https://www.admira.live/council"];
-const COUNCIL_TOKEN = "admira2026";
-const COUNCIL_MODEL = "llama-70b";
-const XP_PER_MISSION = 50;
-const XP_PER_LEVEL = 150;
-// ── Liga en la nube (Cloudflare Worker + KV) ──
-const LIGA_WORKER = "https://yarig-liga-worker.csilvasantin.workers.dev/api/liga";
-const LIGA_KEY = "yarig-liga-2026";
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
 
-const CONSEJEROS = {
-  CEO:{o:1,role:"Chief Executive Officer",emoji:"🏛️",side:"racional",mentors:"CEO / fundador",legend:"Steve Jobs",modern:"Elon Musk",terr:{legend:"Producto, criterio y foco extremo",modern:"Innovación radical y visión de futuro"}},
-  CTO:{o:2,role:"Chief Technology Officer",emoji:"⚙️",side:"racional",mentors:"CTO / lead técnico",legend:"Steve Wozniak",modern:"Jensen Huang",terr:{legend:"Ingenio técnico y elegancia al construir",modern:"IA, GPUs y plataformas de cómputo"}},
-  COO:{o:3,role:"Chief Operations Officer",emoji:"📋",side:"racional",mentors:"COO / operaciones",legend:"Tim Cook",modern:"Gwynne Shotwell",terr:{legend:"Escala, disciplina y excelencia operativa",modern:"Ejecución a escala y logística"}},
-  CFO:{o:4,role:"Chief Financial Officer",emoji:"💰",side:"racional",mentors:"CFO / finanzas",legend:"Warren Buffett",modern:"Ruth Porat",terr:{legend:"Capital, paciencia y sostenibilidad",modern:"Gestión financiera y crecimiento sostenible"}},
-  CCO:{o:5,role:"Chief Creative Officer",emoji:"💡",side:"creativo",mentors:"CMO / marca & growth",legend:"Walt Disney",modern:"John Lasseter",terr:{legend:"Mundo de marca y experiencia memorable",modern:"Animación, storytelling y creatividad"}},
-  CDO:{o:6,role:"Chief Design Officer",emoji:"🎨",side:"creativo",mentors:"Head of Design / producto",legend:"Dieter Rams",modern:"Jony Ive",terr:{legend:"Orden, función y claridad radical",modern:"Diseño industrial y simplicidad"}},
-  CXO:{o:7,role:"Chief Experience Officer",emoji:"🌐",side:"creativo",mentors:"Head of CX / cliente",legend:"Howard Schultz",modern:"Carlos Ratti",terr:{legend:"Escenografía, inmersión y cohesión sensorial",modern:"Ciudades inteligentes y experiencia urbana"}},
-  CSO:{o:8,role:"Chief Storytelling Officer",emoji:"📖",side:"creativo",mentors:"Head of Story / estrategia",legend:"George Lucas",modern:"Ryan Reynolds",terr:{legend:"Storyworld, expansión y coherencia narrativa",modern:"Marketing viral y narrativa de marca"}},
-};
-const ROLE_KEYS = Object.keys(CONSEJEROS).sort((a,b)=>CONSEJEROS[a].o-CONSEJEROS[b].o);
-const GEN_API = { legend:"leyendas", modern:"coetaneos" };
-const AVATARS = ["🦸","🧑‍🚀","🧙","🤖","🧑‍💻","🦹","🧑‍🔧","🥷","👩‍🚀","🧑‍🎤"];
-
-function uid(){return "x"+Math.random().toString(36).slice(2,9);}
-function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
-const $=id=>document.getElementById(id);
-const today=()=>new Date().toLocaleDateString("en-CA");
-const yesterday=()=>new Date(Date.now()-864e5).toLocaleDateString("en-CA");
-let view="liga";
-
-// ── Estado (v3: liga de startups) ──
-const LS="yarig_startups_v3";
-let state=load();
-function blankStartup(name){return {id:uid(),name:name||"Mi Startup",seenAch:[],departments:[],members:[]};}
-function normalize(d){
-  d.gen=d.gen||"legend"; if(typeof d.sfx!=="boolean")d.sfx=true;
-  if(!d.deviceId)d.deviceId=uid()+uid();
-  if(typeof d.leagueCode!=="string")d.leagueCode="";
-  if(typeof d.cloud!=="boolean")d.cloud=false;
-  if(!Array.isArray(d.remote))d.remote=[];
-  if(!Array.isArray(d.startups)||!d.startups.length)d.startups=[blankStartup("")];
-  d.startups.forEach(s=>{s.id=s.id||uid();s.name=s.name||"Mi Startup";s.seenAch=s.seenAch||[];
-    if(!s.ownerId)s.ownerId=d.deviceId;
-    s.departments=s.departments||[];s.members=s.members||[];
-    s.members.forEach(m=>{if(m.deptId===undefined)m.deptId=null;if(!m.avatar)m.avatar=AVATARS[0];
-      if(typeof m.xp!=="number")m.xp=0;m.missions=m.missions||[];
-      if(typeof m.tasks==="string"){m.okr=m.tasks;m.tasks=[];}
-      m.tasks=Array.isArray(m.tasks)?m.tasks:[]; m.journey=m.journey||{active:false,start:0,overtime:false,otStart:0};});});
-  if(!d.startups.some(s=>s.id===d.activeId))d.activeId=d.startups[0].id;
-  return d;
-}
-function load(){
-  try{const d=JSON.parse(localStorage.getItem(LS));if(d&&Array.isArray(d.startups)&&d.startups.length)return normalize(d);}catch(e){}
-  let gen="legend",sfx=true,name="",members=null,seen=[];
-  try{const v2=JSON.parse(localStorage.getItem("yarig_startups_v2"));
-    if(v2&&v2.members){members=v2.members;name=v2.startup||"";seen=v2.seenAch||[];gen=v2.gen||gen;sfx=v2.sfx!==false;}}catch(e){}
-  if(!members){try{const v1=JSON.parse(localStorage.getItem("yarig_startups_v1"));
-    if(v1&&v1.members){members=v1.members.map(m=>({...m,xp:0,missions:[],streak:0,lastDay:""}));name=v1.startup||"";}}catch(e){}}
-  const su=blankStartup(name); su.seenAch=seen;
-  su.members=(members||[]).map(m=>({deptId:null,...m}));
-  return normalize({gen,sfx,startups:[su],activeId:su.id});
-}
-function save(){localStorage.setItem(LS,JSON.stringify(state));}
-function cur(){return state.startups.find(s=>s.id===state.activeId)||state.startups[0];}
-
-// ── XP / niveles / consejeros ──
-function levelOf(xp){return Math.floor((xp||0)/XP_PER_LEVEL)+1;}
-function xpInLevel(xp){return (xp||0)%XP_PER_LEVEL;}
-function persona(key){return CONSEJEROS[key][state.gen];}
-function terr(key){return CONSEJEROS[key].terr[state.gen];}
-function suXp(s){return s.members.reduce((n,m)=>n+(m.xp||0),0);}
-function suDone(s){return s.members.reduce((n,m)=>n+(Array.isArray(m.missions)?m.missions.filter(q=>q.done).length:(m.missionsDone||0)),0);}
-
-// ── Liga en la nube ──
-function cleanCode(c){return String(c||"").trim().toUpperCase().replace(/[^A-Z0-9_-]/g,"").slice(0,32);}
-let pushTimer=null, cloudIv=null;
-function schedulePush(){ if(!state.cloud||!state.leagueCode)return; clearTimeout(pushTimer); pushTimer=setTimeout(cloudPushAll,1500); }
-function setCloud(st){ const b=$("cloudBtn"); if(!b)return;
-  b.classList.toggle("on",state.cloud&&st!=="err");
-  b.textContent=!state.cloud?"☁ SYNC":(st==="err"?"☁ ERR":(st==="busy"?"☁ …":"☁ ON")); }
-async function cloudPushAll(){
-  if(!state.cloud||!state.leagueCode)return;
-  setCloud("busy");
-  try{ for(const su of state.startups){
-      await fetch(LIGA_WORKER+"?code="+encodeURIComponent(state.leagueCode),{method:"POST",
-        headers:{"Content-Type":"application/json","X-Liga-Key":LIGA_KEY},
-        body:JSON.stringify({startup:{id:su.id,name:su.name,ownerId:state.deviceId,members:su.members,departments:su.departments}}),
-        signal:AbortSignal.timeout(15000)});
-    } setCloud("ok"); }catch(e){ setCloud("err"); }
-}
-async function cloudPull(){
-  if(!state.leagueCode)return;
-  try{
-    const res=await fetch(LIGA_WORKER+"?code="+encodeURIComponent(state.leagueCode),
-      {headers:{"X-Liga-Key":LIGA_KEY},signal:AbortSignal.timeout(15000)});
-    if(!res.ok){setCloud("err");return;}
-    const d=await res.json(); const localIds=new Set(state.startups.map(s=>s.id));
-    state.remote=(d.startups||[]).filter(s=>!localIds.has(s.id));
-    save(); renderLiga(); setCloud("ok");
-  }catch(e){ setCloud("err"); }
-}
-function startCloudIv(){ if(cloudIv)clearInterval(cloudIv); cloudIv=setInterval(cloudPull,30000); }
-function stopCloudIv(){ if(cloudIv)clearInterval(cloudIv); cloudIv=null; }
-function toggleCloud(){
-  const code=cleanCode($("leagueCode").value);
-  if(!code){ $("leagueCode").focus(); return; }
-  state.leagueCode=code; state.cloud=!state.cloud; save();
-  if(state.cloud){ cloudPushAll().then(cloudPull); startCloudIv(); }
-  else { stopCloudIv(); state.remote=[]; save(); renderLiga(); }
-  setCloud(state.cloud?"ok":""); sfxClick();
-}
-function ligaStartups(){
-  const localIds=new Set(state.startups.map(s=>s.id));
-  const remotes=(state.remote||[]).filter(s=>!localIds.has(s.id)).map(s=>({...s,_remote:true}));
-  return [...state.startups.map(s=>({...s,_remote:false})),...remotes];
-}
-
-// ── Logros (por startup) ──
-const ACHIEVEMENTS=[
-  {id:"first",emoji:"🎯",name:"PRIMER COMBO",desc:"Completa tu primera misión",test:s=>suDone(s)>=1},
-  {id:"combo10",emoji:"💥",name:"MARATÓN",desc:"10 misiones completadas",test:s=>suDone(s)>=10},
-  {id:"streak3",emoji:"🔥",name:"EN RACHA",desc:"Algún jugador con racha de 3 días",test:s=>s.members.some(m=>(m.streak||0)>=3)},
-  {id:"lv5",emoji:"⭐",name:"VETERANO",desc:"Un jugador alcanza LV.5",test:s=>s.members.some(m=>levelOf(m.xp)>=5)},
-  {id:"party4",emoji:"👥",name:"FULL PARTY",desc:"4+ miembros en el equipo",test:s=>s.members.length>=4},
-  {id:"council",emoji:"🏛️",name:"CONSEJO PLENO",desc:"Los 8 roles cubiertos",test:s=>new Set(s.members.map(m=>m.role)).size>=8},
-  {id:"depts3",emoji:"🏢",name:"ORGANIGRAMA",desc:"3+ departamentos creados",test:s=>(s.departments||[]).length>=3},
-  {id:"xp1000",emoji:"🏆",name:"STARTUP LEYENDA",desc:"1000 XP de equipo",test:s=>suXp(s)>=1000},
-];
-function checkAchievements(){
-  const s=cur(); s.seenAch=s.seenAch||[];
-  for(const a of ACHIEVEMENTS){
-    if(a.test(s)&&!s.seenAch.includes(a.id)){s.seenAch.push(a.id);save();showToast(a.emoji+" "+a.name);sfxLevel();}
-  }
-}
-
-// ── SFX ──
-let actx=null;
-function beep(freq,dur,type){ if(!state.sfx)return;
-  try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();
-    const o=actx.createOscillator(),g=actx.createGain();
-    o.type=type||"square";o.frequency.value=freq;o.connect(g);g.connect(actx.destination);
-    g.gain.setValueAtTime(.08,actx.currentTime);g.gain.exponentialRampToValueAtTime(.0001,actx.currentTime+dur);
-    o.start();o.stop(actx.currentTime+dur);}catch(e){}
-}
-function sfxClick(){beep(620,.06);}
-function sfxCoin(){beep(880,.07);setTimeout(()=>beep(1240,.1),70);}
-function sfxMission(){beep(720,.05);setTimeout(()=>beep(1040,.08),60);}
-function sfxLevel(){[523,659,784,1046].forEach((f,i)=>setTimeout(()=>beep(f,.12,"triangle"),i*90));}
-
-// ── Selects ──
-function fillRoles(){
-  $("mRole").innerHTML=ROLE_KEYS.map(k=>`<option value="${k}">${CONSEJEROS[k].emoji} ${k} · ${esc(CONSEJEROS[k].mentors)}</option>`).join("");
-  roleHint();
-}
-function roleHint(){const k=$("mRole").value;$("roleHint").innerHTML=`MENTOR: <b>${CONSEJEROS[k].emoji} ${esc(persona(k))}</b> — ${esc(terr(k))}`;}
-function fillDepts(){
-  const s=cur();
-  $("mDept").innerHTML=`<option value="">— Sin departamento —</option>`+
-    s.departments.map(d=>`<option value="${d.id}">${esc(d.name)}</option>`).join("");
-}
-function fillStartups(){
-  $("startupSel").innerHTML=state.startups.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join("");
-  $("startupSel").value=state.activeId;
-}
-function deptName(id){const d=cur().departments.find(x=>x.id===id);return d?d.name:"";}
-
-// ── Render ──
-function render(){
-  const s=cur();
-  fillStartups();
-  document.querySelectorAll("#genToggle button").forEach(b=>b.classList.toggle("active",b.dataset.gen===state.gen));
-  $("sfxBtn").classList.toggle("on",state.sfx);
-  $("hiScore").textContent=suXp(s);
-  $("teamLv").textContent=s.members.reduce((n,m)=>n+levelOf(m.xp),0);
-  $("teamTitle").textContent=s.name.toUpperCase()+" · PARTY";
-  $("rankTitle").textContent="🏆 "+s.name.toUpperCase();
-  $("deptTitle").textContent="🏢 "+s.name.toUpperCase()+" · DEPTS";
-  $("medTitle").textContent="🎖️ "+s.name.toUpperCase();
-  $("grid").innerHTML=s.members.map(card).join("");
-  $("empty").style.display=s.members.length?"none":"block";
-  const used=new Set(s.members.map(m=>m.role));
-  $("coverage").innerHTML=ROLE_KEYS.map(k=>`<span class="chip ${used.has(k)?"filled":""}">${CONSEJEROS[k].emoji} ${k}</span>`).join("");
-  fillDepts(); renderLiga(); renderDepts(); renderRank(); renderMedals();
-  roleHint();
-  schedulePush();
-}
-function card(m){
-  const c=CONSEJEROS[m.role],lv=levelOf(m.xp),pend=(m.missions||[]).filter(x=>!x.done).length;
-  const pct=Math.round(xpInLevel(m.xp)/XP_PER_LEVEL*100), dn=deptName(m.deptId);
-  return `<div class="pc ${c.side}" onclick="openPlayer('${m.id}')">
-    <div class="side"></div>
-    ${pend?`<div class="qbadge">${pend} MISIÓN${pend>1?"ES":""}</div>`:""}
-    <div class="row">
-      <div class="ava">${m.avatar||"🧑‍🚀"}</div>
-      <div><div class="nm">${esc(m.name)}</div>
-        ${m.title?`<div class="tt">${esc(m.title)}</div>`:""}
-        <div class="lv">LV.${lv} · ${m.xp||0} XP</div></div>
-    </div>
-    <div class="xpbar"><div class="xpfill" style="width:${pct}%"></div></div>
-    ${dn?`<div class="deptchip">🏢 ${esc(dn)}</div>`:""}
-    <div class="mentor">MENTOR ▸ <b>${c.emoji} ${esc(persona(m.role))}</b><br>${m.role} · ${esc(c.role)}</div>
-    ${m.streak?`<div class="streak">🔥 ${m.streak}</div>`:""}
-  </div>`;
-}
-function renderRank(){
-  const s=cur(), sorted=[...s.members].sort((a,b)=>(b.xp||0)-(a.xp||0)||levelOf(b.xp)-levelOf(a.xp));
-  $("rankEmpty").style.display=sorted.length?"none":"block";
-  $("rankList").style.display=sorted.length?"block":"none";
-  const medal=i=>["🥇","🥈","🥉"][i]||("#"+(i+1));
-  $("rankList").innerHTML=sorted.map((m,i)=>{
-    const c=CONSEJEROS[m.role], dn=deptName(m.deptId);
-    return `<div class="rrow p${i+1}">
-      <div class="pos">${medal(i)}</div>
-      <div class="rava">${m.avatar||"🧑‍🚀"}</div>
-      <div><div class="rnm">${esc(m.name)} ${m.streak?`<span style="color:var(--gold);font-size:.85rem">🔥${m.streak}</span>`:""}</div>
-        <div class="rsub">${c.emoji} ${m.role}${dn?` · 🏢 ${esc(dn)}`:""} · mentor ${esc(persona(m.role))}</div></div>
-      <div class="rxp"><b>${m.xp||0} XP</b><small>LV.${levelOf(m.xp)}</small></div>
-    </div>`;
-  }).join("");
-}
-function renderMedals(){
-  const s=cur();
-  $("medGrid").innerHTML=ACHIEVEMENTS.map(a=>{
-    const got=a.test(s);
-    return `<div class="medal ${got?"got":""}"><div class="me">${got?a.emoji:"🔒"}</div>
-      <div class="mn">${a.name}</div><div class="md">${a.desc}</div></div>`;
-  }).join("");
-}
-function renderLiga(){
-  const sorted=ligaStartups().sort((a,b)=>suXp(b)-suXp(a));
-  const medal=i=>["🥇","🥈","🥉"][i]||("#"+(i+1));
-  $("ligaList").innerHTML=sorted.map((s,i)=>{
-    const top=[...s.members].sort((a,b)=>(b.xp||0)-(a.xp||0))[0];
-    const isA=!s._remote&&s.id===state.activeId;
-    const tag=s._remote?`<span class="go" style="opacity:.65">☁ REMOTA</span>`
-                       :`<button class="go" onclick="goStartup('${s.id}')">${isA?"ACTIVA":"VER"}</button>`;
-    return `<div class="rrow p${i+1} ${isA?"active-su":""}">
-      <div class="pos">${medal(i)}</div>
-      <div class="rava">${s._remote?"☁":"🚀"}</div>
-      <div><div class="rnm">${esc(s.name)}</div>
-        <div class="rsub">${s.members.length} jugador${s.members.length===1?"":"es"} · ${(s.departments||[]).length} dpto${(s.departments||[]).length===1?"":"s"}${top?` · MVP ${esc(top.name)}`:""}</div></div>
-      <div class="rxp"><b>${suXp(s)} XP</b><small>${suDone(s)} misiones</small></div>
-      ${tag}
-    </div>`;
-  }).join("");
-}
-function renderDepts(){
-  const s=cur();
-  const groups=s.departments.map(d=>({id:d.id,name:d.name,members:s.members.filter(m=>m.deptId===d.id)}));
-  const none=s.members.filter(m=>!m.deptId);
-  if(none.length)groups.push({id:null,name:"Sin departamento",members:none});
-  groups.sort((a,b)=>b.members.reduce((n,m)=>n+(m.xp||0),0)-a.members.reduce((n,m)=>n+(m.xp||0),0));
-  $("deptEmpty").style.display=(s.departments.length||none.length)?"none":"block";
-  $("deptList").style.display=(s.departments.length||none.length)?"block":"none";
-  const medal=i=>["🥇","🥈","🥉"][i]||("#"+(i+1));
-  $("deptList").innerHTML=groups.map((g,i)=>{
-    const xp=g.members.reduce((n,m)=>n+(m.xp||0),0);
-    const avg=g.members.length?Math.round(g.members.reduce((n,m)=>n+levelOf(m.xp),0)/g.members.length):0;
-    return `<div class="rrow p${i+1}">
-      <div class="pos">${medal(i)}</div>
-      <div class="rava">🏢</div>
-      <div><div class="rnm">${esc(g.name)}</div>
-        <div class="rsub">${g.members.length} miembro${g.members.length===1?"":"s"} · ${g.members.map(m=>m.name.split(" ")[0]).join(", ")||"—"}</div></div>
-      <div class="rxp"><b>${xp} XP</b><small>LV medio ${avg}</small></div>
-    </div>`;
-  }).join("");
-}
-function setView(v){
-  view=v;
-  ["liga","party","depts","rank","medals","yarig"].forEach(x=>{$("view-"+x).style.display=(x===v)?"block":"none";});
-  document.querySelectorAll("#tabs .tab").forEach(b=>b.classList.toggle("active",b.dataset.view===v));
-  if(v==="yarig"&&!$("yarigBody").innerHTML.trim())syncYarig();
-  sfxClick();
-}
-
-// ── Startups ──
-function addStartup(){
-  const name=(prompt("Nombre de la nueva startup:")||"").trim(); if(!name)return;
-  const s=blankStartup(name); state.startups.push(s); state.activeId=s.id; save(); render(); setView("party"); sfxCoin();
-}
-function renameStartup(){
-  const s=cur(); const name=(prompt("Renombrar startup:",s.name)||"").trim(); if(!name)return;
-  s.name=name; save(); render();
-}
-function goStartup(id){ state.activeId=id; save(); render(); setView("party"); sfxClick(); }
-function addDept(){
-  const name=(prompt("Nuevo departamento (p.ej. Ingeniería, Growth, Operaciones):")||"").trim(); if(!name)return;
-  cur().departments.push({id:uid(),name}); save(); render(); checkAchievements(); sfxCoin();
-}
-
-// ── Jugadores ──
-function addMember(){
-  const name=$("mName").value.trim(); if(!name){$("mName").focus();return;}
-  cur().members.push({id:uid(),name,role:$("mRole").value,title:$("mTitle").value.trim(),deptId:$("mDept").value||null,
-    xp:0,missions:[],assessment:"",tasks:[],journey:{active:false,start:0,overtime:false,otStart:0},
-    streak:0,lastDay:"",avatar:AVATARS[Math.floor(Math.random()*AVATARS.length)]});
-  $("mName").value="";$("mTitle").value="";save();checkAchievements();render();sfxCoin();$("mName").focus();
-}
-let curId=null;
-function findMember(id){return cur().members.find(x=>x.id===id);}
-function openPlayer(id){
-  const m=findMember(id); if(!m)return; curId=id;
-  const c=CONSEJEROS[m.role], dn=deptName(m.deptId);
-  $("pmAva").textContent=m.avatar||"🧑‍🚀";
-  $("pmName").textContent=m.name;
-  $("pmRole").textContent=(m.title?m.title+" · ":"")+m.role+(dn?" · 🏢 "+dn:"")+" · "+c.role;
-  $("pmLv").textContent="LV."+levelOf(m.xp)+" · "+(m.xp||0)+" XP";
-  $("pmMentorEmoji").textContent=c.emoji;
-  $("pmMentorName").textContent="MENTOR ▸ "+persona(m.role).toUpperCase();
-  $("pmAssessment").textContent=m.assessment||`Pega las tareas/OKRs de ${m.name} y pide misiones a ${persona(m.role)}.`;
-  $("pmTasks").value=m.okr||"";
-  $("pmStatus").innerHTML="";
-  renderMissions(m);
-  $("pmCoach").style.display="block"; $("pmTasksView").style.display="none";
-  document.querySelectorAll("#pmTabs .tab").forEach(b=>b.classList.toggle("active",b.dataset.mtab==="coach"));
-  $("ov").classList.add("show"); sfxClick();
-}
-function closePlayer(){stopTick();$("ov").classList.remove("show");curId=null;}
-function renderMissions(m){
-  $("pmMissions").innerHTML=(m.missions||[]).map((q,i)=>`
-    <div class="mission ${q.done?"done":""}">
-      <div class="chk" onclick="toggleMission(${i})">${q.done?"✓":""}</div>
-      <div class="mx">${esc(q.text)}</div>
-      <div class="mq">+${XP_PER_MISSION}XP</div>
-    </div>`).join("");
-}
-function toggleMission(i){
-  const m=findMember(curId); if(!m)return;
-  const q=m.missions[i]; const before=levelOf(m.xp);
-  if(!q.done){ q.done=true; m.xp=(m.xp||0)+XP_PER_MISSION; sfxMission();
-    const t=today();
-    if(m.lastDay!==t){ m.streak=(m.lastDay===yesterday())?(m.streak||0)+1:1; m.lastDay=t; }
-    const after=levelOf(m.xp);
-    if(after>before){ showToast("LEVEL UP! LV."+after); sfxLevel(); }
-  } else { q.done=false; m.xp=Math.max(0,(m.xp||0)-XP_PER_MISSION); }
-  save(); checkAchievements(); renderMissions(m); $("pmLv").textContent="LV."+levelOf(m.xp)+" · "+(m.xp||0)+" XP"; render();
-}
-function showToast(t){const el=$("toast");el.textContent=t;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),1600);}
-
-// ── Coaching ──
-async function askMentor(){
-  const m=findMember(curId); if(!m)return;
-  const who=persona(m.role);
-  m.okr=$("pmTasks").value.trim();
-  if(!m.okr){$("pmTasks").focus();return;}
-  save();
-  $("pmStatus").innerHTML=`<div class="loading">${who.toUpperCase()} ESTÁ PENSANDO…</div>`;
-  $("pmAsk").disabled=true;
-  const prompt=`Eres ${who}, mentor de ${m.name} (${m.role} de la startup ${cur().name}). `+
-    `Tareas/OKRs actuales de ${m.name}:\n${m.okr}\n\n`+
-    `Responde en español, en tu voz característica. Primero UNA o DOS frases evaluando su foco. `+
-    `Luego EXACTAMENTE 3 misiones de mejora concretas y accionables, cada una en su propia línea con el prefijo "MISION: ".`;
-  try{
-    const data=await councilAsk(m.role, prompt);
-    const content=String(data.content||"");
-    const missions=[]; const assessLines=[];
-    content.split(/\n+/).forEach(line=>{
-      const mm=line.match(/^\s*(?:MISION|MISIÓN|MISSION)\s*[:\-)]\s*(.+)$/i)||line.match(/^\s*\d\s*[\).\-]\s*(.+)$/);
-      if(mm) missions.push({text:mm[1].replace(/^["“]|["”]$/g,"").trim(),done:false});
-      else if(line.trim()) assessLines.push(line.trim());
-    });
-    m.assessment=assessLines.join(" ")||"Misiones listas.";
-    m.missions=missions.slice(0,3).length?missions.slice(0,3):[{text:content.slice(0,160),done:false}];
-    save();
-    $("pmAssessment").textContent=m.assessment;
-    $("pmStatus").innerHTML="";
-    renderMissions(m); render(); sfxCoin();
-  }catch(err){
-    $("pmStatus").innerHTML=`<div class="err">⚠ ${esc(who)} está OFFLINE (Consejo no responde). ${esc(err.message||err)}<br>Revisa que admira.live / el backend esté vivo.</div>`;
-  }finally{ $("pmAsk").disabled=false; }
-}
-async function councilAsk(roleKey, message){
-  let lastErr=null;
-  for(const base of COUNCIL_URLS){
-    try{
-      const res=await fetch(base+"/api/council/ask-one",{
-        method:"POST",
-        headers:{"Content-Type":"application/json","X-Council-Token":COUNCIL_TOKEN},
-        body:JSON.stringify({agent_name:roleKey,generation:GEN_API[state.gen],llm:COUNCIL_MODEL,message}),
-        signal:AbortSignal.timeout(90000)
-      });
-      if(!res.ok){lastErr="HTTP "+res.status;continue;}
-      return await res.json();
-    }catch(e){lastErr=e.message||String(e);}
-  }
-  throw new Error(lastErr||"sin conexión");
-}
-
-// ── MIS TAREAS (workspace por jugador, estilo Yarig en arcade) ──
-const AREAS=[
-  {key:"EQUIPO",emoji:"👍",color:"#2ecc71"},
-  {key:"FINANZAS",emoji:"📊",color:"#e67e22"},
-  {key:"MARCA",emoji:"👁",color:"#e74c3c"},
-  {key:"PERSONAL",emoji:"⭐",color:"#9b59b6"},
-];
-const XP_PER_TASK=30;
-let taskFilter="ALL", tickIv=null;
-function areaOf(k){return AREAS.find(a=>a.key===k)||{key:k||"PERSONAL",emoji:"📋",color:"var(--line)"};}
-function fmtTime(sec){sec=Math.max(0,Math.floor(sec));const h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),s=sec%60;
-  return h?`${h}h ${m}m`:(m?`${m}m ${s}s`:`${s}s`);}
-function taskElapsed(t){return (t.timeSpent||0)+(t.status==="proc"&&t.startedAt?(Date.now()-t.startedAt)/1000:0);}
-function fillTaskArea(){$("ntArea").innerHTML=AREAS.map(a=>`<option value="${a.key}">${a.emoji} ${a.key}</option>`).join("");}
-
-function renderJourney(m){
-  const j=m.journey||{}; const since=j.active&&j.start?` · desde ${new Date(j.start).toLocaleTimeString().slice(0,5)}`:"";
-  $("pmJourney").innerHTML=
-    `<span class="jlbl">JORNADA${since}</span>`+
-    `<button class="jb ${j.active?"on":""}" onclick="toggleJourney()">${j.active?"⏹ FINALIZAR JORNADA":"▶ INICIAR JORNADA"}</button>`+
-    `<button class="jb red ${j.overtime?"on":""}" onclick="toggleOvertime()">${j.overtime?"🔥 FINALIZAR H. EXTRAS":"🔥 INICIAR H. EXTRAS"}</button>`;
-}
-function toggleJourney(){const m=findMember(curId);if(!m)return;const j=m.journey;
-  j.active=!j.active; j.start=j.active?Date.now():0; if(!j.active)j.overtime=false;
-  save(); renderJourney(m); beep(j.active?880:440,.1);}
-function toggleOvertime(){const m=findMember(curId);if(!m)return;const j=m.journey;
-  if(!j.active){toggleJourney();} j.overtime=!j.overtime; j.otStart=j.overtime?Date.now():0; save(); renderJourney(m); beep(700,.08);}
-
-function renderTaskWorkspace(m){
-  renderJourney(m);
-  $("taskFilter").innerHTML=[{key:"ALL",emoji:"🎮"}].concat(AREAS).map(a=>
-    `<span class="tf ${taskFilter===a.key?"active":""}" style="${taskFilter===a.key?`color:${a.color||"#fff"}`:""}" onclick="setTaskFilter('${a.key}')">${a.emoji} ${a.key}</span>`).join("");
-  const active=(m.tasks||[]).filter(t=>t.status!=="fin"&&(taskFilter==="ALL"||t.area===taskFilter));
-  const done=(m.tasks||[]).filter(t=>t.status==="fin"&&(taskFilter==="ALL"||t.area===taskFilter));
-  $("pmTaskList").innerHTML=active.length?active.map(taskCard).join(""):`<div class="empty" style="padding:16px;font-size:.45rem">SIN TAREAS · AÑADE UNA</div>`;
-  $("histTitle").style.display=done.length?"block":"none";
-  $("pmHistory").innerHTML=done.map(taskCard).join("");
-}
-function taskCard(t){
-  const a=areaOf(t.area), el=taskElapsed(t);
-  const st=t.status==="proc"?'<span class="sbadge proc">EN PROCESO</span>':t.status==="fin"?'<span class="sbadge fin">FINALIZADA</span>':'<span class="sbadge pend">PENDIENTE</span>';
-  let act="";
-  if(t.status==="pend")act=`<button class="tb" onclick="startTask('${t.id}')">▶ INICIAR</button>`;
-  else if(t.status==="proc")act=`<button class="tb go" onclick="finishTask('${t.id}')">⏱ FINALIZAR</button><button class="tb blue" onclick="pauseTask('${t.id}')">⏸ PAUSAR</button>`;
-  act+=`<button class="tb blue" onclick="editTask('${t.id}')">✎ EDITAR</button><button class="tb red" onclick="delTask('${t.id}')">🗑 BORRAR</button>`;
-  return `<div class="tk ${t.status}">
-    <div class="area" style="background:${a.color}"></div>
-    <div class="td">${esc(t.desc)}</div>
-    <div class="tm">${st} · ${a.emoji} ${a.key}${t.project?` · 📁 ${esc(t.project)}`:""}${t.est?` · Est: ${esc(String(t.est))}h`:""}
-      ${el>0||t.status==="proc"?`· <span class="timer">⏱ ${fmtTime(el)}</span>`:""}</div>
-    <div class="tact">${act}</div>
-  </div>`;
-}
-function addTask(){
-  const m=findMember(curId);if(!m)return;
-  const desc=$("ntDesc").value.trim(); if(!desc){$("ntDesc").focus();return;}
-  m.tasks.unshift({id:uid(),desc,area:$("ntArea").value,project:$("ntProj").value.trim(),
-    est:$("ntEst").value?Number($("ntEst").value):"",status:"pend",timeSpent:0,startedAt:0,createdAt:Date.now()});
-  $("ntDesc").value="";$("ntProj").value="";$("ntEst").value="";
-  save(); renderTaskWorkspace(m); sfxCoin();
-}
-function startTask(id){const m=findMember(curId);if(!m)return;
-  m.tasks.forEach(t=>{if(t.status==="proc"){t.timeSpent=taskElapsed(t);t.status="pend";t.startedAt=0;}});
-  const t=m.tasks.find(x=>x.id===id); if(t){t.status="proc";t.startedAt=Date.now();}
-  save(); renderTaskWorkspace(m); beep(880,.08); startTick();}
-function pauseTask(id){const m=findMember(curId);if(!m)return;const t=m.tasks.find(x=>x.id===id);
-  if(t){t.timeSpent=taskElapsed(t);t.status="pend";t.startedAt=0;} save(); renderTaskWorkspace(m); beep(440,.08);}
-function finishTask(id){const m=findMember(curId);if(!m)return;const t=m.tasks.find(x=>x.id===id);
-  if(!t)return; t.timeSpent=taskElapsed(t); t.status="fin"; t.startedAt=0;
-  const before=levelOf(m.xp); m.xp=(m.xp||0)+XP_PER_TASK;
-  const today_=today(); if(m.lastDay!==today_){m.streak=(m.lastDay===yesterday())?(m.streak||0)+1:1;m.lastDay=today_;}
-  sfxMission(); if(levelOf(m.xp)>before){showToast("LEVEL UP! LV."+levelOf(m.xp));sfxLevel();}
-  else showToast("✓ TAREA +"+XP_PER_TASK+"XP");
-  save(); checkAchievements(); renderTaskWorkspace(m); $("pmLv").textContent="LV."+levelOf(m.xp)+" · "+(m.xp||0)+" XP"; render();}
-function editTask(id){const m=findMember(curId);if(!m)return;const t=m.tasks.find(x=>x.id===id);
-  if(!t)return; const v=prompt("Editar tarea:",t.desc); if(v===null)return; t.desc=v.trim()||t.desc; save(); renderTaskWorkspace(m);}
-function delTask(id){const m=findMember(curId);if(!m)return; m.tasks=m.tasks.filter(x=>x.id!==id); save(); renderTaskWorkspace(m); render(); beep(300,.08);}
-function setTaskFilter(k){taskFilter=k; const m=findMember(curId); if(m)renderTaskWorkspace(m); sfxClick();}
-function startTick(){ if(tickIv)return; tickIv=setInterval(()=>{
-  const m=findMember(curId); if(!m||$("pmTasksView").style.display==="none"){return;}
-  if(!m.tasks.some(t=>t.status==="proc")){stopTick();return;}
-  renderTaskWorkspace(m);
-},1000); }
-function stopTick(){ if(tickIv)clearInterval(tickIv); tickIv=null; }
-function setModalTab(tab){
-  $("pmCoach").style.display=tab==="coach"?"block":"none";
-  $("pmTasksView").style.display=tab==="tasks"?"block":"none";
-  document.querySelectorAll("#pmTabs .tab").forEach(b=>b.classList.toggle("active",b.dataset.mtab===tab));
-  if(tab==="tasks"){const m=findMember(curId); if(m){renderTaskWorkspace(m); if(m.tasks.some(t=>t.status==="proc"))startTick();}}
-  else stopTick();
-  sfxClick();
-}
-
-// ── Yarig.ai real (vía bridge admira-live-worker) ──
-const YARIG_BRIDGE="https://admira-live-worker.csilvasantin.workers.dev/api";
-async function yarigFetch(ep){
-  const r=await fetch(YARIG_BRIDGE+"/"+ep,{signal:AbortSignal.timeout(15000)});
-  if(!r.ok)throw new Error("HTTP "+r.status); return r.json();
-}
-function normTask(t){
-  return {
-    desc:t.description||t.desc||t.todo||t.task||t.name||"(sin descripción)",
-    project:t.project||t.proyecto||t.project_name||t.company||"",
-    status:String(t.status||t.state||t.estado||"").trim(),
-    est:t.estimation||t.estimacion||t.estimated_hours||t.hours||t.estimation_hours||"",
-    time:t.time_dedicated||t.tiempo||t.dedicated||t.total_time||t.time||"",
-    date:t.date||t.datetime||t.added||t.created_at||t.fecha||"",
-    user:t.name||t.user||t.username||"",
-  };
-}
-function sbadge(status){const s=String(status).toLowerCase();
-  if(/proces/.test(s))return '<span class="sbadge proc">EN PROCESO</span>';
-  if(/finaliz/.test(s))return '<span class="sbadge fin">FINALIZADA</span>';
-  if(/pend/.test(s))return '<span class="sbadge pend">PENDIENTE</span>';
-  return status?`<span class="sbadge pend">${esc(status)}</span>`:"";}
-function ytaskCard(t){const n=normTask(t);
-  return `<div class="ytask">
-    <div class="yh">${n.date?"🕒 "+esc(String(n.date)):""}${n.project?" · 📁 "+esc(n.project):""}${n.user?" · 👤 "+esc(n.user):""}</div>
-    <div class="yd">${esc(n.desc)}</div>
-    <div class="ymeta">${sbadge(n.status)}${n.est?` · Estimación: <b style="color:var(--fg)">${esc(String(n.est))}h</b>`:""}${n.time?` · Tiempo: <b style="color:var(--fg)">${esc(String(n.time))}</b>`:""}</div>
-  </div>`;}
-async function syncYarig(){
-  const body=$("yarigBody"); body.innerHTML='<div class="loading">SINCRONIZANDO CON YARIG…</div>';
-  try{
-    const [score,today,ranking,company]=await Promise.allSettled([
-      yarigFetch("score/total"),yarigFetch("tasks/today"),yarigFetch("team/ranking"),yarigFetch("company/tasks")]);
-    const sc=score.status==="fulfilled"?score.value.data:undefined;
-    const td=today.status==="fulfilled"?today.value.data:null;
-    const rk=ranking.status==="fulfilled"?ranking.value.data:null;
-    const co=company.status==="fulfilled"?company.value.data:null;
-    let html=`<div class="ybar">`;
-    if(sc!==undefined&&sc!==false&&sc!==null)html+=`<div class="ystat">MI SCORE<br><b>${esc(String(sc))}</b></div>`;
-    const clock=(td&&Array.isArray(td.clocking))?td.clocking:[];
-    if(clock.length){const last=clock[clock.length-1];
-      html+=`<div class="ystat">JORNADA<br><b>${esc(last.name||"")}</b> · ${esc(String(last.datetime||"").slice(11,16))}</div>`;}
-    html+=`</div>`;
-    const tasks=(td&&Array.isArray(td.tasks))?td.tasks:[];
-    html+=`<p class="ysec">📋 MIS TAREAS HOY · ${tasks.length}</p>`;
-    html+=tasks.length?tasks.map(ytaskCard).join(""):`<div class="empty" style="padding:18px;font-size:.45rem">SIN TAREAS HOY EN YARIG</div>`;
-    if(Array.isArray(rk)&&rk.length){
-      html+=`<p class="ysec">👥 EQUIPO YARIG · ${rk.length}</p><div class="rank">`+
-        rk.slice(0,30).map((u,i)=>`<div class="rrow"><div class="pos">#${i+1}</div><div class="rava">🧑‍🚀</div><div><div class="rnm">${esc(u.name||u.user||"—")}</div><div class="rsub">${esc(u.email||"")}${u.remote_mode==="1"?" · 🏠 remoto":""}</div></div></div>`).join("")+`</div>`;
-    }
-    const coTasks=(co&&Array.isArray(co.tasks))?co.tasks:[];
-    if(coTasks.length){
-      const byUser={}; coTasks.forEach(t=>{const u=t.name||"—";(byUser[u]=byUser[u]||[]).push(t);});
-      html+=`<p class="ysec">🏢 TAREAS DE LA EMPRESA · ${coTasks.length}</p>`;
-      Object.keys(byUser).forEach(u=>{ html+=`<div style="font-size:.95rem;color:var(--neon2);margin:9px 0 6px">👤 ${esc(u)} · ${byUser[u].length}</div>`+byUser[u].map(yTaskCard).join(""); });
-    }
-    if((sc===false||sc===undefined)&&!tasks.length&&!(Array.isArray(rk)&&rk.length)&&!coTasks.length)
-      html+=`<div class="err">Yarig devolvió datos vacíos — la sesión del service account del bridge puede haber caducado (re-login del bridge necesario). Score/jornada pueden seguir disponibles.</div>`;
-    body.innerHTML=html; sfxCoin();
-  }catch(e){ body.innerHTML=`<div class="err">⚠ No se pudo conectar con Yarig: ${esc(e.message||e)}</div>`; }
-}
-
-// ── Yarig por persona (tareas reales mapeadas al player) ──
-let yarigCache={company:null,team:null,at:0};
-async function loadYarigData(force){
-  if(!force&&yarigCache.company&&Date.now()-yarigCache.at<60000)return yarigCache;
-  const [co,team]=await Promise.allSettled([yarigFetch("company/tasks"),yarigFetch("team/ranking")]);
-  yarigCache.company=(co.status==="fulfilled"&&co.value.data&&Array.isArray(co.value.data.tasks))?co.value.data.tasks:[];
-  yarigCache.team=(team.status==="fulfilled"&&Array.isArray(team.value.data))?team.value.data:[];
-  yarigCache.at=Date.now();
-  return yarigCache;
-}
-function normYTask(t){
-  const fin=String(t.finished)==="1";
-  const status=fin?"fin":(t.start_time&&!t.end_time?"proc":"pend");
-  let el=Number(t.elapsed); if(!isFinite(el))el=0;
-  return {id:String(t.id||""),desc:t.description||"(sin descripción)",project:t.project||t.customer||"",status,
-    elapsed:el,user:t.name||"",date:t.start_time||t.creation_time||""};
-}
-function yTaskCard(t,writable){const n=normYTask(t);
-  const st=n.status==="proc"?'<span class="sbadge proc">EN PROCESO</span>':n.status==="fin"?'<span class="sbadge fin">FINALIZADA</span>':'<span class="sbadge pend">PENDIENTE</span>';
-  let act="";
-  if(writable&&n.id){
-    const d=esc(n.desc).replace(/'/g,"&#39;");
-    if(n.status==="pend")act+=`<button class="tb" onclick="yarigAction('${n.id}','start','${d}')">▶ INICIAR</button>`;
-    if(n.status==="proc")act+=`<button class="tb go" onclick="yarigAction('${n.id}','finish','${d}')">⏹ FINALIZAR</button><button class="tb blue" onclick="yarigAction('${n.id}','pause','${d}')">⏸ PAUSAR</button>`;
-    act+=`<button class="tb red" onclick="yarigAction('${n.id}','delete','${d}')">🗑 BORRAR</button>`;
-  }
-  return `<div class="tk ${n.status}"><div class="area" style="background:var(--neon2)"></div>
-    <div class="td">${esc(n.desc)}</div>
-    <div class="tm">${st}${n.project?` · 📁 ${esc(n.project)}`:""}${n.elapsed?` · <span class="timer">⏱ ${fmtTime(n.elapsed)}</span>`:""} · <span style="color:var(--neon2);font-size:.78rem">🛰️ ${esc(n.user)}</span></div>
-    ${act?`<div class="tact">${act}</div>`:""}</div>`;
-}
-const YARIG_WRITE_KEY="yarig-write-2026";
-async function yarigWrite(action,payload){
-  const r=await fetch(YARIG_BRIDGE+"/task/"+action,{method:"POST",
-    headers:{"Content-Type":"application/json","X-Write-Key":YARIG_WRITE_KEY},
-    body:JSON.stringify(payload||{}),signal:AbortSignal.timeout(20000)});
-  if(!r.ok)throw new Error("HTTP "+r.status); return r.json();
-}
-async function yarigAction(id,action,desc){
-  const verb=action==="start"?"INICIAR":action==="finish"?"FINALIZAR":action==="delete"?"BORRAR":"PAUSAR";
-  if(!confirm(`¿${verb} esta tarea en Yarig.ai REAL?\n\n"${desc.replace(/&#39;/g,"'")}"\n\n(Escribe en producción)`))return;
-  try{
-    const res=await yarigWrite(action,{id});
-    // start/delete devuelven objeto/true (truthy); finish/pause usan json_close_task,
-    // que devuelve false EN ÉXITO (Yarig: result is not None). Por eso distinguimos.
-    const ok = (action==="finish"||action==="pause") ? !!(res&&res.ok&&res.data!==undefined&&res.data!==null)
-                                                      : !!(res&&res.ok&&res.data&&res.data!==false);
-    if(ok){ showToast("🛰️ "+verb+" OK"); sfxLevel(); }
-    else { showToast("⚠ Yarig rechazó la acción"); }
-    yarigCache.at=0; // invalida cache
-    if(curId&&$("ov").classList.contains("show"))syncPlayerYarig(); else syncYarig();
-  }catch(e){ showToast("⚠ "+(e.message||e)); }
-}
-async function addTaskYarig(){
-  const m=findMember(curId); if(!m)return;
-  const desc=$("ntDesc").value.trim(); if(!desc){$("ntDesc").focus();return;}
-  const est=$("ntEst").value?Number($("ntEst").value):1;
-  if(!confirm(`¿Crear esta tarea en Yarig.ai REAL?\n\n"${desc}"\n\nAparecerá en tu lista real de Yarig (proyecto Admira).`))return;
-  try{
-    const res=await yarigWrite("add",{description:desc,estimation:est,project_id:1});
-    if(res&&res.ok&&res.data&&res.data!==false){
-      showToast("🛰️ CREADA EN YARIG"); sfxLevel();
-      $("ntDesc").value="";$("ntProj").value="";$("ntEst").value="";
-      yarigCache.at=0; setTimeout(syncPlayerYarig,600);
-    } else { showToast("⚠ Yarig no creó la tarea"); }
-  }catch(e){ showToast("⚠ "+(e.message||e)); }
-}
-async function syncPlayerYarig(){
-  const m=findMember(curId); if(!m)return;
-  const box=$("pmYarigTasks"); box.innerHTML='<div class="loading">SINCRONIZANDO CON YARIG…</div>';
-  try{
-    const c=await loadYarigData(true);
-    const target=(m.yarigName||m.name||"").trim().toLowerCase();
-    const mine=c.company.filter(t=>String(t.name||"").trim().toLowerCase()===target);
-    const names=[...new Set(c.company.map(t=>t.name).filter(Boolean))];
-    if(!mine.length){
-      box.innerHTML=`<div style="font-size:.95rem;color:var(--muted)">Sin tareas en Yarig para <b style="color:var(--fg)">${esc(m.yarigName||m.name)}</b>.</div>`
-        +(names.length?`<div style="font-size:.9rem;color:var(--muted);margin-top:7px">Personas con tareas hoy: ${names.map(esc).join(", ")}.<br>Usa 🔗 MAPEAR si su nombre en Yarig es distinto.</div>`:`<div style="font-size:.9rem;color:var(--muted);margin-top:7px">El bridge no devolvió tareas (sesión del service account).</div>`);
-    } else {
-      box.innerHTML=`<p style="font-size:.95rem;color:var(--muted);margin:0 0 8px">${mine.length} tarea(s) real(es) de <b style="color:var(--fg)">${esc(m.yarigName||m.name)}</b> · ▶/⏹ operan Yarig REAL:</p>`+mine.map(t=>yTaskCard(t,true)).join("");
-    }
-    sfxCoin();
-  }catch(e){ box.innerHTML=`<div class="err">⚠ Yarig no responde: ${esc(e.message||e)}</div>`; }
-}
-function mapPlayerYarig(){
-  const m=findMember(curId); if(!m)return;
-  const v=prompt("Nombre EXACTO del usuario en Yarig (vacío = usar el nombre del player):",m.yarigName||m.name);
-  if(v===null)return; m.yarigName=v.trim()||""; save(); syncPlayerYarig();
-}
-
-// ── Docs / evolución ──
-const CHANGELOG=[
-  {t:"NIVEL 1 · Equipo + mentor",d:"Alta de miembros y asignación automática del consejero por rol. Toggle Leyendas/Coetáneos cambia la persona del mentor."},
-  {t:"NIVEL 2 · Coaching arcade",d:"El consejero (LLM del Consejo AdmiraNext) evalúa las tareas/OKRs y genera 3 misiones. Completarlas da +XP. Look arcade + SFX."},
-  {t:"NIVEL 3 · Arcade League",d:"Ranking de jugadores con podio, rachas 🔥 (días consecutivos) y 8 medallas/logros con toast."},
-  {t:"NIVEL 4 · Liga + Departamentos",d:"Varias startups que compiten en una liga + departamentos por startup con su propio ranking."},
-  {t:"NIVEL 5 · Liga en la nube",d:"Cloudflare Worker + KV: publica tus startups por código de liga y compite entre dispositivos en tiempo (casi) real."},
-  {t:"NIVEL 6 · Yarig real",d:"Pestaña 🛰️ YARIG con datos reales de Yarig.ai (score, jornada/fichaje, tareas, ranking de equipo) vía el bridge admira-live-worker, en clave arcade."},
-  {t:"NIVEL 7 · Mis Tareas arcade",d:"Workspace de tareas por jugador estilo Yarig: secciones EQUIPO/FINANZAS/MARCA/PERSONAL, añadir tarea, jornada + horas extras, estados Pendiente/En proceso/Finalizada con timer de tiempo dedicado, Iniciar/Finalizar/Pausar/Editar/Borrar e historial. Finalizar una tarea da +30 XP."},
-  {t:"NIVEL 8 · Yarig real por persona",d:"Cada jugador trae sus TAREAS REALES de Yarig.ai (match por nombre, mapeable) con su estado y tiempo real. Pestaña YARIG con el equipo real (23) y tareas de empresa por persona. Fix del bridge: ranking y company/tasks ahora reciben sus params."},
-  {t:"NIVEL 9 · Operar Yarig real",d:"Botones ▶ INICIAR / ⏹ FINALIZAR / ⏸ PAUSAR en las tareas reales escriben en Yarig.ai de verdad (vía endpoints de escritura del bridge, con confirmación). Probado en real."},
-  {t:"NIVEL 10 · Crear en Yarig",d:"Botón 🛰️ AÑADIR EN YARIG.AI crea una tarea real en Yarig (proyecto Admira) con confirmación. Seguridad write: Origin en allowlist + rate-limit + key. Saneo de descripción (sin emoji/no-BMP que rompían el alta)."},
-];
-const YARIG_STRUCTURE=`Yarig.ai original que vamos replicando en arcade: secciones EQUIPO · FINANZAS · MARCA · PERSONAL · "Mis tareas" con estados Pendiente / En proceso / Finalizada · Estimación + Tiempo total dedicado · Añadir tareas · Finalizar jornada · Iniciar/Finalizar horas extras · Control/Iniciar/Editar/Borrar tarea · Historial de tareas.`;
-function openDocs(){
-  $("docBody").innerHTML=CHANGELOG.map(c=>`<div class="dlvl"><div class="dt">${esc(c.t)}</div><div class="dd">${esc(c.d)}</div></div>`).join("")
-    +`<p class="dd" style="margin-top:16px;color:var(--neon2);line-height:1.45">${esc(YARIG_STRUCTURE)}</p>`;
-  $("docOv").classList.add("show"); sfxClick();
-}
-function closeDocs(){$("docOv").classList.remove("show");}
-
-// ── Wiring ──
-fillRoles();
-$("addBtn").onclick=addMember;
-$("mName").addEventListener("keydown",e=>{if(e.key==="Enter")addMember();});
-$("mRole").addEventListener("change",roleHint);
-$("newDeptBtn").onclick=addDept;
-$("startupSel").addEventListener("change",e=>{state.activeId=e.target.value;save();render();});
-$("newStartupBtn").onclick=addStartup;
-$("renStartupBtn").onclick=renameStartup;
-document.querySelectorAll("#genToggle button").forEach(b=>b.onclick=()=>{state.gen=b.dataset.gen;save();render();sfxClick();});
-$("sfxBtn").onclick=()=>{state.sfx=!state.sfx;save();render();if(state.sfx)sfxClick();};
-document.querySelectorAll("#tabs .tab").forEach(b=>b.onclick=()=>setView(b.dataset.view));
-$("pmClose").onclick=closePlayer;
-$("pmAsk").onclick=askMentor;
-$("ov").addEventListener("click",e=>{if(e.target===$("ov"))closePlayer();});
-document.addEventListener("keydown",e=>{if(e.key==="Escape")closePlayer();});
-$("cloudBtn").onclick=toggleCloud;
-$("leagueCode").addEventListener("keydown",e=>{if(e.key==="Enter")toggleCloud();});
-$("docsBtn").onclick=openDocs;
-$("docClose").onclick=closeDocs;
-$("docOv").addEventListener("click",e=>{if(e.target===$("docOv"))closeDocs();});
-$("yarigSync").onclick=syncYarig;
-fillTaskArea();
-$("ntAdd").onclick=addTask;
-$("ntAddYarig").onclick=addTaskYarig;
-$("ntDesc").addEventListener("keydown",e=>{if(e.key==="Enter")addTask();});
-document.querySelectorAll("#pmTabs .tab").forEach(b=>b.onclick=()=>setModalTab(b.dataset.mtab));
-render();
-// arranque cloud si ya había liga activa
-$("leagueCode").value=state.leagueCode||"";
-setCloud(state.cloud?"ok":"");
-if(state.cloud&&state.leagueCode){ cloudPushAll().then(cloudPull); startCloudIv(); }
+  gtag('config', 'G-LX7HV9DFYB');
 </script>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="An impressive and flawless site template that includes various UI elements and countless features, attractive ready-made blocks and rich pages, basically everything you need to create a unique and professional website.">
+  <title>Yokup -Soporte técnico audiovisual</title>
+  <link rel="shortcut icon" href="assets/img/logo-dark.png">
+  <link rel="stylesheet" href="assets/css/plugins.css">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/colors/blue.css">
+  <link rel="preload" href="assets/css/fonts/thicccboi.css" as="style" onload="this.rel='stylesheet'">
+</head>
+
+<body>
+  <!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KCZZKDBX"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+  <div class="content-wrapper">
+    <header class="wrapper bg-dark">
+      <nav class="navbar navbar-expand-lg center-nav transparent navbar-dark">
+        <div class="container flex-lg-row flex-nowrap align-items-center">
+          <div class="navbar-brand w-100">
+            <a href="index.html">
+              <img class="logo-dark" src="assets/img/logo-dark.png" alt="" />
+              <img class="logo-light" src="assets/img/logo-light.png"  alt="" />
+            </a>
+          </div>
+          <div class="navbar-collapse offcanvas offcanvas-nav offcanvas-start">
+            <div class="offcanvas-header d-lg-none">
+              <h3 class="text-dark fs-30 mb-0">Yokup</h3>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body ms-lg-auto d-flex flex-column h-100">
+              <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link scroll active" href="index.html#home">Home</a></li>
+                <li class="nav-item"><a class="nav-link scroll" href="index.html#nosotros">Nosotros</a></li>
+                <li class="nav-item"><a class="nav-link scroll" href="index.html#servicios">Servicios</a></li>
+                <li class="nav-item"><a class="nav-link scroll" href="index.html#porque">Por Qué</a></li>
+                <li class="nav-item"><a class="nav-link scroll" href="index.html#contacto">Contacto</a></li>
+                <li class="nav-item"><a class="nav-link" href="game/" style="color:#7c5cff;font-weight:700">🎮 GAME</a></li>
+              </ul>
+              <!-- /.navbar-nav -->
+              <div class="offcanvas-footer d-lg-none">
+              </div>
+              <!-- /.offcanvas-footer -->
+            </div>
+            <!-- /.offcanvas-body -->
+          </div>
+          <!-- /.navbar-collapse -->
+          <div class="navbar-other w-100 d-flex ms-auto">
+            <ul class="navbar-nav flex-row align-items-center ms-auto">             
+              <li class="nav-item d-lg-none">
+                <button class="hamburger offcanvas-nav-btn"><span></span></button>
+              </li>
+            </ul>
+            <!-- /.navbar-nav -->
+          </div>
+          <!-- /.navbar-other -->
+        </div>
+        <!-- /.container -->
+      </nav>
+      <!-- /.navbar -->
+      <div class="offcanvas offcanvas-top bg-light" id="offcanvas-search" data-bs-scroll="true">
+        <div class="container d-flex flex-row py-6">
+          <form class="search-form w-100">
+            <input id="search-form" type="text" class="form-control" placeholder="Type keyword and hit enter">
+          </form>
+          <!-- /.search-form -->
+          <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <!-- /.container -->
+      </div>
+      <!-- /.offcanvas -->
+    </header>
+    <!-- /header -->
+    <span id="home"></span>
+    <section class="wrapper bg-dark angled lower-start">
+      <div class="container pt-7 pt-md-11 pb-8">
+        <div class="row gx-0 gy-10 align-items-center">
+          <div class="col-lg-6" data-cues="slideInDown" data-group="page-title" data-delay="600">
+            <h1 class="display-1 text-dark mb-4">Soporte técnico audiovisual <span class="typer text-primary text-nowrap" data-delay="100" data-words="rápido, eficiente"></span><span class="cursor text-primary" data-owner="typer"></span></h1>
+            <p class="lead fs-24 lh-sm text-dark mb-7 pe-md-18 pe-lg-0 pe-xxl-15">Soporte y mantenimiento garantizados en toda España para tu circuito digital.</p>
+            <div>
+              <a class="btn btn-lg btn-primary rounded" href="index.html#contacto">Contáctanos</a>
+            </div>
+          </div>
+          <!-- /column -->
+          <div class="col-lg-5 offset-lg-1 mb-n18" data-cues="slideInDown">
+            <div class="position-relative">
+              <figure class="rounded"><img src="assets/img/yokup-trabajo.png" alt=""></figure>
+            </div>
+            <!-- /div -->
+          </div>
+          <!-- /column -->
+        </div>
+        <!-- /.row -->
+      </div>
+      <!-- /.container -->
+    </section>
+    <span id="nosotros"></span>
+    <!-- /section -->
+    <section class="wrapper bg-light">
+      <div class="container pt-19 pt-md-21 pb-16 pb-md-18">
+        <div class="row gx-lg-8 gx-xl-12 gy-10 mb-14 mb-md-18 align-items-center">
+          <div class="col-md-8 col-lg-6 position-relative">
+            <div class="shape bg-soft-primary rounded-circle rellax w-20 h-20" data-rellax-speed="1" style="top: -2rem; left: -1.9rem; transform: translate3d(0px, -2px, 0px);"></div>
+            <figure class="rounded"><img src="assets/img/yokup-team2.png"  alt=""></figure>
+          </div>
+          <!--/column -->
+          <div class="col-lg-6">
+            <h2 class="fs-16 text-uppercase text-line text-primary mb-3">¿Quiénes somos?</h2>
+            <p class="lead fs-lg">
+                En <strong>Yokup</strong>, somos especialistas en soporte audiovisual y Digital Signage, ofreciendo soluciones innovadoras y adaptadas a cada cliente.
+            </p>
+            
+            <div class="row gx-xl-10 gy-6">
+                <div class="col-md-12">
+                    <div class="d-flex flex-row">
+                        <div class="icon text-primary fs-48 me-6 mt-n1"> 
+                          <i class="uil uil-brightness-plus"></i> 
+                        </div>
+                        <div>
+                            <h4 class="mb-1">Experiencia</h4>
+                            <p class="mb-0">Con más de <strong>10 años de experiencia</strong> en el sector trabajado con empresas de toda España.</p>
+                        </div>
+                    </div>
+                </div>
+                <!--/column -->
+                <div class="col-md-12">
+                    <div class="d-flex flex-row">
+                        <div class="icon text-primary fs-48 me-6 mt-n1"> 
+                          <i class="uil uil-constructor"></i> 
+                        </div>
+                        <div>
+                            <h4 class="mb-1">Profesionales</h4>
+                            <p class="mb-0">Con un equipo de <strong>más de 200 profesionales</strong> altamente cualificados. </p>
+                        </div>
+                    </div>
+                </div>
+                <!--/column -->
+            </div>
+            <span id="servicios"></span>
+            <!--/.row -->
+        </div>
+          <!--/column -->
+        </div>
+        
+        <!-- /.row -->
+        <div class="row" >
+          <div class="col-lg-8 col-xl-7 col-xxl-6">
+            <h2 class="fs-16 text-uppercase text-line text-primary mb-3">Nuestros Servicios</h2>
+            <h3 class="display-4 mb-9">Soluciones especializadas para la gestión y mantenimiento audiovisual</h3>
+          </div>
+          <!-- /column -->
+        </div>
+        <!-- /.row -->
+        <div class="row gx-md-8 gy-8 mb-14 mb-md-18">
+            <div class="col-md-6 col-lg-3">
+                <div class="icon btn btn-block btn-lg btn-soft-primary pe-none mb-6"> 
+                    <i class="uil uil-phone-volume"></i> 
+                </div>
+                <h4>Soporte para Digital Signage</h4>
+                <p class="mb-3">Solucionamos incidencias y realizamos mantenimiento correctivo y preventivo para evitar interrupciones.</p>
+            </div>
+            <!--/column -->
+            <div class="col-md-6 col-lg-3">
+                <div class="icon btn btn-block btn-lg btn-soft-primary pe-none mb-6"> 
+                    <i class="uil uil-truck"></i> 
+                </div>
+                <h4>Gestión logística audiovisual</h4>
+                <p class="mb-3">Nos encargamos del transporte, instalación y almacenaje de equipos audiovisuales con máxima eficiencia.</p>
+            </div>
+            <!--/column -->
+            <div class="col-md-6 col-lg-3">
+                <div class="icon btn btn-block btn-lg btn-soft-primary pe-none mb-6"> 
+                    <i class="uil uil-laptop-cloud"></i> 
+                </div>
+                <h4>Inventarios y mantenimiento</h4>
+                <p class="mb-3">Realizamos control de inventario y mantenimiento preventivo para garantizar un funcionamiento óptimo y maximizar la vida útil de los equipos.</p>
+            </div>
+            <!--/column -->
+
+            <span id="porque"></span>
+            <!--/column -->
+        </div>
+
+        <!--/.row -->
+        <!--<div class="row gy-10 gy-sm-13 gx-lg-3 mb-16 mb-md-18 align-items-center">
+          <div class="col-md-8 col-lg-6 position-relative">
+            <div class="shape bg-dot primary rellax w-17 h-21" data-rellax-speed="1" style="top: -2rem; left: -1.9rem;"></div>
+            <div class="shape rounded bg-soft-primary rellax d-md-block" data-rellax-speed="0" style="bottom: -1.8rem; right: -1.5rem; width: 85%; height: 90%; "></div>
+            <figure class="rounded"><img src="./assets/img/photos/about7.jpg" srcset="./assets/img/photos/about7@2x.jpg 2x" alt="" /></figure>
+          </div>-->
+          <!--/column -->
+          <!--<div class="col-lg-5 col-xl-4 offset-lg-1">
+            <h2 class="fs-16 text-uppercase text-line text-primary mb-3">How It Works?</h2>
+            <h3 class="display-4 mb-7">Here are the 3 working steps on success.</h3>
+            <div class="d-flex flex-row mb-6">
+              <div>
+                <span class="icon btn btn-block btn-soft-primary pe-none me-5"><span class="number fs-18">1</span></span>
+              </div>
+              <div>
+                <h4 class="mb-1">Collect Ideas</h4>
+                <p class="mb-0">Nulla vitae elit libero pharetra augue dapibus. Praesent commodo cursus.</p>
+              </div>
+            </div>
+            <div class="d-flex flex-row mb-6">
+              <div>
+                <span class="icon btn btn-block btn-soft-primary pe-none me-5"><span class="number fs-18">2</span></span>
+              </div>
+              <div>
+                <h4 class="mb-1">Data Analysis</h4>
+                <p class="mb-0">Vivamus sagittis lacus vel augue laoreet. Etiam porta sem malesuada magna.</p>
+              </div>
+            </div>
+            <div class="d-flex flex-row">
+              <div>
+                <span class="icon btn btn-block btn-soft-primary pe-none me-5"><span class="number fs-18">3</span></span>
+              </div>
+              <div>
+                <h4 class="mb-1">Finalize Product</h4>
+                <p class="mb-0">Cras mattis consectetur purus sit amet. Aenean lacinia bibendum nulla sed.</p>
+              </div>
+            </div>
+          </div>-->
+          <!--/column -->
+        <!--</div>-->
+        <!--/.row -->
+
+        <div class="row gy-10 gy-sm-13 gx-lg-3 align-items-center">
+          <div class="col-md-8 col-lg-6 offset-lg-1 order-lg-2 position-relative">
+            <div class="shape rounded-circle bg-line primary rellax w-18 h-18" data-rellax-speed="1" style="top: -2rem; right: -1.9rem;"></div>
+            <div class="shape rounded bg-soft-primary rellax d-md-block" data-rellax-speed="0" style="bottom: -1.8rem; left: -1.5rem; width: 85%; height: 90%; "></div>
+            <figure class="rounded"><img src="assets/img/yokup-team.png" alt=""></figure>
+          </div>
+          <!--/column -->
+          <div class="col-lg-5">
+              <h2 class="fs-16 text-uppercase text-line text-primary mb-3">¿Por Qué Elegirnos?</h2>
+              <h3 class="display-4 mb-7">Razones por las que nuestros clientes confían en nosotros.</h3>
+              <div class="accordion accordion-wrapper" id="accordionExample">
+                  <div class="card plain accordion-item">
+                      <div class="card-header" id="headingOne">
+                          <button class="accordion-button" data-bs-toggle="collapse" data-bs-target="#collapseOne"
+                              aria-expanded="true" aria-controls="collapseOne"> Tiempo de Respuesta Rápido </button>
+                      </div>
+                      <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne"
+                          data-bs-parent="#accordionExample">
+                          <div class="card-body">
+                              <p>Atendemos incidencias con máxima rapidez para minimizar el impacto en las operaciones de nuestros clientes.</p>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="card plain accordion-item">
+                      <div class="card-header" id="headingTwo">
+                          <button class="collapsed" data-bs-toggle="collapse" data-bs-target="#collapseTwo"
+                              aria-expanded="false" aria-controls="collapseTwo"> Cobertura en Toda España </button>
+                      </div>
+                      <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo"
+                          data-bs-parent="#accordionExample">
+                          <div class="card-body">
+                              <p>Brindamos soporte técnico en todo el territorio español, asegurando disponibilidad sin importar la ubicación.</p>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="card plain accordion-item">
+                      <div class="card-header" id="headingThree">
+                          <button class="collapsed" data-bs-toggle="collapse" data-bs-target="#collapseThree"
+                              aria-expanded="false" aria-controls="collapseThree"> Profesionales Cualificados </button>
+                      </div>
+                      <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree"
+                          data-bs-parent="#accordionExample">
+                          <div class="card-body">
+                              <p>Nuestro equipo está formado por especialistas con amplia experiencia en soporte audiovisual y digital signage.</p>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="card plain accordion-item">
+                      <div class="card-header" id="headingFour">
+                          <button class="collapsed" data-bs-toggle="collapse" data-bs-target="#collapseFour"
+                              aria-expanded="false" aria-controls="collapseFour"> Uso de Tecnología Avanzada </button>
+                      </div>
+                      <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour"
+                          data-bs-parent="#accordionExample">
+                          <div class="card-body">
+                              <p>Empleamos herramientas de última generación para garantizar soluciones eficaces y adaptadas a cada necesidad.</p>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
+
+          <!--/column -->
+        </div>
+        <!--/.row -->
+      </div>
+      <!-- /.container -->
+    </section>
+    <!-- /section -->
+
+
+    <section class="wrapper bg-light angled upper-end lower-start" id="contacto">
+      <div class="container py-16 py-md-18 position-relative">
+
+        <div class="row gy-10 gy-sm-13 gx-lg-3 align-items-center">
+          <div class="col-md-8 col-lg-6 position-relative">
+            <div class="shape bg-dot primary rellax w-17 h-21" data-rellax-speed="1" style="top: -2rem; left: -1.9rem;"></div>
+            <div class="shape rounded bg-soft-primary rellax d-md-block" data-rellax-speed="0" style="bottom: -1.8rem; right: -1.5rem; width: 85%; height: 90%; "></div>
+            <figure class="rounded"><img src="assets/img/yokup-contacto.png"  alt="" /></figure>
+          </div>
+          <!--/column -->
+          <div class="col-lg-5 col-xl-4 offset-lg-1">
+            <h2 class="fs-16 text-uppercase text-line text-primary mb-3">Contacto</h2>
+            <h2 class="display-4 mb-8">Trabajemos juntos.</h2>
+
+            <div class="formulario">
+              <form
+              action="https://formspree.io/f/mgvanwag"
+              method="POST"
+            >
+              <label>
+                Introduce tu email:
+                <input type="email" name="email">
+              </label>
+              <label>
+                Escribe tu mensaje:
+                <textarea name="message"></textarea>
+              </label>
+              <br
+              <!-- your other form fields go here -->
+              <button id="btn_form" type="submit">Enviar</button>
+            </form>
+            </div>
+            <div class="d-flex flex-row">
+              <div>
+                <br>
+                <div class="icon text-primary fs-28 me-6 mt-n1"> <i class="uil uil-location-pin-alt"></i> </div>
+              </div>
+              <div>
+                <br><h5 class="mb-1">Dirección</h5>
+                <address>Carrer del Montseny, 29<br class="d-none d-md-block" />Barcelona, España</address>
+              </div>
+            </div>
+            <div class="d-flex flex-row">
+
+            </div>
+
+          </div>
+          <!--/column -->
+        </div>
+        <!--/.row -->
+      </div>
+      <!-- /.container -->
+    </section>
+    <!-- /section -->
+  </div>
+  <!-- /.content-wrapper -->
+  <footer class="bg-dark text-inverse">
+    <div class="container pt-17 pt-md-19 pb-13 pb-md-15">
+      <div class="widget-container"=>
+        <div >
+          <div class="widget">
+            <img class="mb-4" src="assets/img/logo-light.png"  alt="" />
+            <p >© <script>
+                document.write(new Date().getUTCFullYear());
+              </script> Yokup. <br class="d-none d-lg-block" />All rights reserved.</p>
+
+            <!-- /.social -->
+          </div>
+          <!-- /.widget -->
+        </div>
+        <!-- /column -->
+        <div class="col-md-4 col-lg-3">
+          
+          <!-- /.widget -->
+        </div>
+        <div class="col-md-4 col-lg-3">
+
+          <!-- /.widget -->
+        </div>
+        <!-- /column -->
+        <div class="col-md-4 col-lg-3">
+
+        <!-- /column -->
+        
+        <!-- /column -->
+      </div>
+      <!--/.row -->
+    </div>
+    <!-- /.container -->
+  </footer>
+  <div class="progress-wrap">
+    <svg class="progress-circle svg-content" width="100%" height="100%" viewBox="-1 -1 102 102">
+      <path d="M50,1 a49,49 0 0,1 0,98 a49,49 0 0,1 0,-98" />
+    </svg>
+  </div>
+  <script src="assets/js/plugins.js"></script>
+  <script src="assets/js/theme.js"></script>
 </body>
+
 </html>
