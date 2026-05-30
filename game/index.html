@@ -861,12 +861,13 @@ function ytaskCard(t){const n=normTask(t);
 async function syncYarig(){
   const body=$("yarigBody"); body.innerHTML='<div class="loading">SINCRONIZANDO CON YARIG…</div>';
   try{
-    const [score,today,ranking,company]=await Promise.allSettled([
-      yarigFetch("score/total"),yarigFetch("tasks/today"),yarigFetch("team/ranking"),yarigFetch("company/tasks")]);
-    const sc=score.status==="fulfilled"?score.value.data:undefined;
+    const [today,snap]=await Promise.allSettled([
+      yarigFetch("tasks/today"),loadYarigData(false)]);
     const td=today.status==="fulfilled"?today.value.data:null;
-    const rk=ranking.status==="fulfilled"?ranking.value.data:null;
-    const co=company.status==="fulfilled"?company.value.data:null;
+    const s=snap.status==="fulfilled"?snap.value:{};
+    const sc=s.score;
+    const rk=s.team;
+    const co={tasks:s.company||[]};
     let html=`<div class="ybar">`;
     if(sc!==undefined&&sc!==false&&sc!==null)html+=`<div class="ystat">MI SCORE<br><b>${esc(String(sc))}</b></div>`;
     const clock=(td&&Array.isArray(td.clocking))?td.clocking:[];
@@ -893,12 +894,17 @@ async function syncYarig(){
 }
 
 // ── Yarig por persona (tareas reales mapeadas al player) ──
-let yarigCache={company:null,team:null,at:0};
+let yarigCache={company:null,team:null,at:0,score:undefined,clockings:[]};
+// Capa de sync: lee el snapshot cacheado del bridge (KV, refrescado por Cron 5 min)
+// en vez de pegar a Yarig en cada visita.
 async function loadYarigData(force){
   if(!force&&yarigCache.company&&Date.now()-yarigCache.at<60000)return yarigCache;
-  const [co,team]=await Promise.allSettled([yarigFetch("company/tasks"),yarigFetch("team/ranking")]);
-  yarigCache.company=(co.status==="fulfilled"&&co.value.data&&Array.isArray(co.value.data.tasks))?co.value.data.tasks:[];
-  yarigCache.team=(team.status==="fulfilled"&&Array.isArray(team.value.data))?team.value.data:[];
+  const snap=await yarigFetch("snapshot"+(force?"?refresh=1":""));
+  yarigCache.company=Array.isArray(snap.tasks)?snap.tasks:[];
+  yarigCache.team=Array.isArray(snap.team)?snap.team:[];
+  if(snap.score!==undefined)yarigCache.score=snap.score;
+  yarigCache.clockings=Array.isArray(snap.clockings)?snap.clockings:[];
+  yarigCache.snapshotAt=snap.fetchedAt;
   yarigCache.at=Date.now();
   return yarigCache;
 }
@@ -993,6 +999,7 @@ const CHANGELOG=[
   {t:"NIVEL 7 · Mis Tareas arcade",d:"Workspace de tareas por jugador estilo Yarig: secciones EQUIPO/FINANZAS/MARCA/PERSONAL, añadir tarea, jornada + horas extras, estados Pendiente/En proceso/Finalizada con timer de tiempo dedicado, Iniciar/Finalizar/Pausar/Editar/Borrar e historial. Finalizar una tarea da +30 XP."},
   {t:"NIVEL 8 · Yarig real por persona",d:"Cada jugador trae sus TAREAS REALES de Yarig.ai (match por nombre, mapeable) con su estado y tiempo real. Pestaña YARIG con el equipo real (23) y tareas de empresa por persona. Fix del bridge: ranking y company/tasks ahora reciben sus params."},
   {t:"NIVEL 9 · Operar Yarig real",d:"Botones ▶ INICIAR / ⏹ FINALIZAR / ⏸ PAUSAR en las tareas reales escriben en Yarig.ai de verdad (vía endpoints de escritura del bridge, con confirmación). Probado en real."},
+  {t:"NIVEL 11 · Capa de sync (cache)",d:"El bridge cachea un snapshot de Yarig en KV (Cron cada 5 min) y lo sirve en /api/snapshot. La app lee de ahí (rápido y resiliente) en vez de pegar a Yarig en cada visita; las escrituras siguen yendo en directo y refrescan."},
   {t:"NIVEL 10 · Crear en Yarig",d:"Botón 🛰️ AÑADIR EN YARIG.AI crea una tarea real en Yarig (proyecto Admira) con confirmación. Seguridad write: Origin en allowlist + rate-limit + key. Saneo de descripción (sin emoji/no-BMP que rompían el alta)."},
 ];
 const YARIG_STRUCTURE=`Yarig.ai original que vamos replicando en arcade: secciones EQUIPO · FINANZAS · MARCA · PERSONAL · "Mis tareas" con estados Pendiente / En proceso / Finalizada · Estimación + Tiempo total dedicado · Añadir tareas · Finalizar jornada · Iniciar/Finalizar horas extras · Control/Iniciar/Editar/Borrar tarea · Historial de tareas.`;
