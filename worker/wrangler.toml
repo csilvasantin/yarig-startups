@@ -1,0 +1,12 @@
+name = "yarig-liga-worker"
+main = "src/index.js"
+compatibility_date = "2025-12-01"
+
+# Clave compartida opcional para escribir en la liga (no es secreta de verdad:
+# va embebida en la app pública; sirve para frenar spam casual).
+[vars]
+LIGA_KEY = "yarig-liga-2026"
+
+[[kv_namespaces]]
+binding = "LIGA"
+id = "d0e91515010041ef9fbe2bcfd17f7c83"

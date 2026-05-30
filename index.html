@@ -161,6 +161,8 @@
       <select id="startupSel" class="px" title="Startup activa"></select>
       <button class="iconbtn" id="newStartupBtn" title="Nueva startup">＋ STARTUP</button>
       <button class="iconbtn" id="renStartupBtn" title="Renombrar startup">✎</button>
+      <input id="leagueCode" class="px" placeholder="CÓDIGO LIGA" autocomplete="off" style="width:120px;font-size:.5rem;padding:10px 8px" title="Código de liga compartido">
+      <button class="iconbtn" id="cloudBtn" title="Sincronizar liga en la nube">☁ SYNC</button>
       <div class="toggle" id="genToggle">
         <button data-gen="legend" class="active">★ LEYENDAS</button>
         <button data-gen="modern">▶ COETÁNEOS</button>
@@ -265,6 +267,9 @@ const COUNCIL_TOKEN = "admira2026";
 const COUNCIL_MODEL = "llama-70b";
 const XP_PER_MISSION = 50;
 const XP_PER_LEVEL = 150;
+// ── Liga en la nube (Cloudflare Worker + KV) ──
+const LIGA_WORKER = "https://yarig-liga-worker.csilvasantin.workers.dev/api/liga";
+const LIGA_KEY = "yarig-liga-2026";
 
 const CONSEJEROS = {
   CEO:{o:1,role:"Chief Executive Officer",emoji:"🏛️",side:"racional",mentors:"CEO / fundador",legend:"Steve Jobs",modern:"Elon Musk",terr:{legend:"Producto, criterio y foco extremo",modern:"Innovación radical y visión de futuro"}},
@@ -293,8 +298,13 @@ let state=load();
 function blankStartup(name){return {id:uid(),name:name||"Mi Startup",seenAch:[],departments:[],members:[]};}
 function normalize(d){
   d.gen=d.gen||"legend"; if(typeof d.sfx!=="boolean")d.sfx=true;
+  if(!d.deviceId)d.deviceId=uid()+uid();
+  if(typeof d.leagueCode!=="string")d.leagueCode="";
+  if(typeof d.cloud!=="boolean")d.cloud=false;
+  if(!Array.isArray(d.remote))d.remote=[];
   if(!Array.isArray(d.startups)||!d.startups.length)d.startups=[blankStartup("")];
   d.startups.forEach(s=>{s.id=s.id||uid();s.name=s.name||"Mi Startup";s.seenAch=s.seenAch||[];
+    if(!s.ownerId)s.ownerId=d.deviceId;
     s.departments=s.departments||[];s.members=s.members||[];
     s.members.forEach(m=>{if(m.deptId===undefined)m.deptId=null;if(!m.avatar)m.avatar=AVATARS[0];
       if(typeof m.xp!=="number")m.xp=0;m.missions=m.missions||[];});});
@@ -321,7 +331,51 @@ function xpInLevel(xp){return (xp||0)%XP_PER_LEVEL;}
 function persona(key){return CONSEJEROS[key][state.gen];}
 function terr(key){return CONSEJEROS[key].terr[state.gen];}
 function suXp(s){return s.members.reduce((n,m)=>n+(m.xp||0),0);}
-function suDone(s){return s.members.reduce((n,m)=>n+(m.missions||[]).filter(q=>q.done).length,0);}
+function suDone(s){return s.members.reduce((n,m)=>n+(Array.isArray(m.missions)?m.missions.filter(q=>q.done).length:(m.missionsDone||0)),0);}
+
+// ── Liga en la nube ──
+function cleanCode(c){return String(c||"").trim().toUpperCase().replace(/[^A-Z0-9_-]/g,"").slice(0,32);}
+let pushTimer=null, cloudIv=null;
+function schedulePush(){ if(!state.cloud||!state.leagueCode)return; clearTimeout(pushTimer); pushTimer=setTimeout(cloudPushAll,1500); }
+function setCloud(st){ const b=$("cloudBtn"); if(!b)return;
+  b.classList.toggle("on",state.cloud&&st!=="err");
+  b.textContent=!state.cloud?"☁ SYNC":(st==="err"?"☁ ERR":(st==="busy"?"☁ …":"☁ ON")); }
+async function cloudPushAll(){
+  if(!state.cloud||!state.leagueCode)return;
+  setCloud("busy");
+  try{ for(const su of state.startups){
+      await fetch(LIGA_WORKER+"?code="+encodeURIComponent(state.leagueCode),{method:"POST",
+        headers:{"Content-Type":"application/json","X-Liga-Key":LIGA_KEY},
+        body:JSON.stringify({startup:{id:su.id,name:su.name,ownerId:state.deviceId,members:su.members,departments:su.departments}}),
+        signal:AbortSignal.timeout(15000)});
+    } setCloud("ok"); }catch(e){ setCloud("err"); }
+}
+async function cloudPull(){
+  if(!state.leagueCode)return;
+  try{
+    const res=await fetch(LIGA_WORKER+"?code="+encodeURIComponent(state.leagueCode),
+      {headers:{"X-Liga-Key":LIGA_KEY},signal:AbortSignal.timeout(15000)});
+    if(!res.ok){setCloud("err");return;}
+    const d=await res.json(); const localIds=new Set(state.startups.map(s=>s.id));
+    state.remote=(d.startups||[]).filter(s=>!localIds.has(s.id));
+    save(); renderLiga(); setCloud("ok");
+  }catch(e){ setCloud("err"); }
+}
+function startCloudIv(){ if(cloudIv)clearInterval(cloudIv); cloudIv=setInterval(cloudPull,30000); }
+function stopCloudIv(){ if(cloudIv)clearInterval(cloudIv); cloudIv=null; }
+function toggleCloud(){
+  const code=cleanCode($("leagueCode").value);
+  if(!code){ $("leagueCode").focus(); return; }
+  state.leagueCode=code; state.cloud=!state.cloud; save();
+  if(state.cloud){ cloudPushAll().then(cloudPull); startCloudIv(); }
+  else { stopCloudIv(); state.remote=[]; save(); renderLiga(); }
+  setCloud(state.cloud?"ok":""); sfxClick();
+}
+function ligaStartups(){
+  const localIds=new Set(state.startups.map(s=>s.id));
+  const remotes=(state.remote||[]).filter(s=>!localIds.has(s.id)).map(s=>({...s,_remote:true}));
+  return [...state.startups.map(s=>({...s,_remote:false})),...remotes];
+}
 
 // ── Logros (por startup) ──
 const ACHIEVEMENTS=[
@@ -390,6 +444,7 @@ function render(){
   $("coverage").innerHTML=ROLE_KEYS.map(k=>`<span class="chip ${used.has(k)?"filled":""}">${CONSEJEROS[k].emoji} ${k}</span>`).join("");
   fillDepts(); renderLiga(); renderDepts(); renderRank(); renderMedals();
   roleHint();
+  schedulePush();
 }
 function card(m){
   const c=CONSEJEROS[m.role],lv=levelOf(m.xp),pend=(m.missions||[]).filter(x=>!x.done).length;
@@ -434,18 +489,20 @@ function renderMedals(){
   }).join("");
 }
 function renderLiga(){
-  const sorted=[...state.startups].sort((a,b)=>suXp(b)-suXp(a));
+  const sorted=ligaStartups().sort((a,b)=>suXp(b)-suXp(a));
   const medal=i=>["🥇","🥈","🥉"][i]||("#"+(i+1));
   $("ligaList").innerHTML=sorted.map((s,i)=>{
     const top=[...s.members].sort((a,b)=>(b.xp||0)-(a.xp||0))[0];
-    const isA=s.id===state.activeId;
+    const isA=!s._remote&&s.id===state.activeId;
+    const tag=s._remote?`<span class="go" style="opacity:.65">☁ REMOTA</span>`
+                       :`<button class="go" onclick="goStartup('${s.id}')">${isA?"ACTIVA":"VER"}</button>`;
     return `<div class="rrow p${i+1} ${isA?"active-su":""}">
       <div class="pos">${medal(i)}</div>
-      <div class="rava">🚀</div>
+      <div class="rava">${s._remote?"☁":"🚀"}</div>
       <div><div class="rnm">${esc(s.name)}</div>
         <div class="rsub">${s.members.length} jugador${s.members.length===1?"":"es"} · ${(s.departments||[]).length} dpto${(s.departments||[]).length===1?"":"s"}${top?` · MVP ${esc(top.name)}`:""}</div></div>
       <div class="rxp"><b>${suXp(s)} XP</b><small>${suDone(s)} misiones</small></div>
-      <button class="go" onclick="goStartup('${s.id}')">${isA?"ACTIVA":"VER"}</button>
+      ${tag}
     </div>`;
   }).join("");
 }
@@ -603,7 +660,13 @@ $("pmClose").onclick=closePlayer;
 $("pmAsk").onclick=askMentor;
 $("ov").addEventListener("click",e=>{if(e.target===$("ov"))closePlayer();});
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closePlayer();});
+$("cloudBtn").onclick=toggleCloud;
+$("leagueCode").addEventListener("keydown",e=>{if(e.key==="Enter")toggleCloud();});
 render();
+// arranque cloud si ya había liga activa
+$("leagueCode").value=state.leagueCode||"";
+setCloud(state.cloud?"ok":"");
+if(state.cloud&&state.leagueCode){ cloudPushAll().then(cloudPull); startCloudIv(); }
 </script>
 </body>
 </html>
