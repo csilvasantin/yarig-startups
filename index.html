@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yarig · Consejo de Startup</title>
+<style>
+  :root{
+    --bg:#0b0e14; --panel:#141925; --panel2:#1b2233; --line:#27314a;
+    --fg:#e8edf7; --muted:#8b97b3; --bright:#7CFC9B;
+    --racional:#e74c3c; --creativo:#3498db; --accent:#7c5cff;
+    --radius:14px; --shadow:0 6px 24px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,system-ui,sans-serif;
+    background:radial-gradient(1200px 700px at 80% -10%,#16203a 0%,var(--bg) 55%);color:var(--fg);min-height:100vh}
+  a{color:#8cf}
+  .wrap{max-width:1180px;margin:0 auto;padding:22px 20px 80px}
+  header.top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:6px}
+  .logo{font-size:1.55rem;font-weight:800;letter-spacing:.3px;display:flex;align-items:center;gap:10px}
+  .logo .sat{filter:drop-shadow(0 0 8px rgba(124,92,255,.6))}
+  .tagline{color:var(--muted);font-size:.92rem;margin:2px 0 18px}
+  .startup-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-left:auto}
+  .startup-bar input{background:var(--panel2);border:1px solid var(--line);color:var(--fg);
+    padding:9px 12px;border-radius:10px;font-size:.95rem;min-width:200px}
+  .gen-toggle{display:inline-flex;background:var(--panel2);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .gen-toggle button{background:transparent;border:0;color:var(--muted);padding:9px 14px;cursor:pointer;font-size:.9rem;font-weight:600}
+  .gen-toggle button.active{background:var(--accent);color:#fff}
+  .grid-cols{display:grid;grid-template-columns:340px 1fr;gap:20px;align-items:start}
+  @media(max-width:880px){.grid-cols{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+  .card .hd{padding:14px 16px;border-bottom:1px solid var(--line);font-weight:700;display:flex;align-items:center;gap:8px}
+  .card .bd{padding:16px}
+  label.fld{display:block;font-size:.78rem;color:var(--muted);margin:10px 0 5px;text-transform:uppercase;letter-spacing:.4px}
+  input,select,textarea{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--fg);
+    padding:10px 12px;border-radius:10px;font-size:.95rem;font-family:inherit}
+  textarea{resize:vertical;min-height:54px}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:14px;
+    background:linear-gradient(135deg,var(--accent),#9b7bff);border:0;color:#fff;font-weight:700;
+    padding:11px;border-radius:11px;cursor:pointer;font-size:.96rem}
+  .btn:hover{filter:brightness(1.08)}
+  .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--muted);margin-top:0}
+  .role-hint{margin-top:8px;font-size:.82rem;color:var(--muted);min-height:18px}
+  .team-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+  .member{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;
+    display:flex;flex-direction:column;transition:transform .12s,border-color .12s}
+  .member:hover{transform:translateY(-2px);border-color:#3a466b}
+  .member .m-top{padding:14px 14px 12px;border-bottom:1px dashed var(--line);position:relative}
+  .m-side{position:absolute;top:0;left:0;width:4px;height:100%}
+  .m-side.racional{background:var(--racional)} .m-side.creativo{background:var(--creativo)}
+  .m-name{font-weight:700;font-size:1.05rem;display:flex;align-items:center;gap:8px}
+  .m-title{color:var(--muted);font-size:.85rem;margin-top:2px}
+  .badge{display:inline-block;font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:20px;
+    background:var(--panel2);border:1px solid var(--line);color:var(--bright);margin-top:8px}
+  .mentor{padding:13px 14px;background:linear-gradient(180deg,rgba(124,92,255,.06),transparent)}
+  .mentor .lbl{font-size:.7rem;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
+  .mentor .who{display:flex;align-items:center;gap:10px;margin-top:6px}
+  .mentor .emoji{font-size:1.7rem;line-height:1}
+  .mentor .who b{font-size:.98rem}
+  .mentor .persona{color:var(--bright);font-size:.85rem}
+  .mentor .terr{color:var(--muted);font-size:.82rem;margin-top:6px;line-height:1.35}
+  .m-actions{margin-top:auto;display:flex;gap:6px;padding:0 14px 13px}
+  .m-actions button{flex:1;background:var(--panel2);border:1px solid var(--line);color:var(--muted);
+    border-radius:9px;padding:7px;cursor:pointer;font-size:.8rem}
+  .m-actions button:hover{color:var(--fg);border-color:var(--accent)}
+  .empty{padding:40px 20px;text-align:center;color:var(--muted)}
+  .coverage{display:flex;flex-wrap:wrap;gap:7px;margin-top:6px}
+  .chip{font-size:.74rem;padding:5px 10px;border-radius:20px;border:1px solid var(--line);background:var(--panel2);
+    display:inline-flex;align-items:center;gap:6px;cursor:pointer;color:var(--muted)}
+  .chip.filled{color:var(--fg);border-color:#3a466b}
+  .chip.vacant{opacity:.55}
+  .chip .dot{width:7px;height:7px;border-radius:50%;background:#3a466b}
+  .chip.filled .dot{background:var(--bright)}
+  .section-title{font-size:.8rem;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:0 0 8px}
+  .count{color:var(--muted);font-weight:500;font-size:.85rem}
+  .foot{margin-top:26px;color:var(--muted);font-size:.8rem;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="logo"><span class="sat">🛰️</span> Yarig · Consejo de Startup</div>
+    <div class="startup-bar">
+      <input id="startupName" placeholder="Nombre de tu startup…" autocomplete="off">
+      <div class="gen-toggle" id="genToggle">
+        <button data-gen="legend" class="active">⭐ Leyendas</button>
+        <button data-gen="modern">🚀 Coetáneos</button>
+      </div>
+    </div>
+  </header>
+  <div class="tagline">Cada miembro de tu equipo tiene un consejero que le ayuda a ser mejor en su disciplina.</div>
+
+  <div class="grid-cols">
+    <!-- Alta de miembro -->
+    <div class="card">
+      <div class="hd">➕ Añadir miembro</div>
+      <div class="bd">
+        <label class="fld">Nombre</label>
+        <input id="mName" placeholder="p.ej. Carlos Silva" autocomplete="off">
+        <label class="fld">Rol en la startup</label>
+        <select id="mRole"></select>
+        <div class="role-hint" id="roleHint"></div>
+        <label class="fld">Cargo / título (opcional)</label>
+        <input id="mTitle" placeholder="p.ej. Co-fundador & CEO" autocomplete="off">
+        <button class="btn" id="addBtn">Asignar consejero</button>
+
+        <p class="section-title" style="margin-top:22px">Cobertura del consejo</p>
+        <div class="coverage" id="coverage"></div>
+      </div>
+    </div>
+
+    <!-- Equipo -->
+    <div class="card">
+      <div class="hd">👥 Equipo &amp; mentores <span class="count" id="teamCount"></span></div>
+      <div class="bd">
+        <div class="team-grid" id="teamGrid"></div>
+        <div class="empty" id="emptyState">Aún no hay miembros. Añade a alguien y se le asignará su consejero.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">MVP · datos guardados en este navegador (localStorage). Próximo: coaching del consejero sobre las tareas de cada miembro.</div>
+</div>
+
+<script>
+// ── Roster real del Consejo AdmiraNext (leyendas + coetáneos) ──
+const CONSEJEROS = {
+  CEO:{order:1, role:"Chief Executive Officer", emoji:"🏛️", side:"racional", mentors:"CEO / fundador",
+    legend:{persona:"Steve Jobs", terr:"Producto, criterio y foco extremo"},
+    modern:{persona:"Elon Musk", terr:"Innovación radical y visión de futuro"}},
+  CTO:{order:2, role:"Chief Technology Officer", emoji:"⚙️", side:"racional", mentors:"CTO / lead técnico",
+    legend:{persona:"Steve Wozniak", terr:"Ingenio técnico y elegancia al construir"},
+    modern:{persona:"Jensen Huang", terr:"IA, GPUs y plataformas de cómputo"}},
+  COO:{order:3, role:"Chief Operations Officer", emoji:"📋", side:"racional", mentors:"COO / operaciones",
+    legend:{persona:"Tim Cook", terr:"Escala, disciplina y excelencia operativa"},
+    modern:{persona:"Gwynne Shotwell", terr:"Ejecución a escala y logística"}},
+  CFO:{order:4, role:"Chief Financial Officer", emoji:"💰", side:"racional", mentors:"CFO / finanzas",
+    legend:{persona:"Warren Buffett", terr:"Capital, paciencia y sostenibilidad"},
+    modern:{persona:"Ruth Porat", terr:"Gestión financiera y crecimiento sostenible"}},
+  CCO:{order:5, role:"Chief Creative Officer", emoji:"💡", side:"creativo", mentors:"CMO / marca & growth",
+    legend:{persona:"Walt Disney", terr:"Mundo de marca y experiencia memorable"},
+    modern:{persona:"John Lasseter", terr:"Animación, storytelling y creatividad"}},
+  CDO:{order:6, role:"Chief Design Officer", emoji:"🎨", side:"creativo", mentors:"Head of Design / producto",
+    legend:{persona:"Dieter Rams", terr:"Orden, función y claridad radical"},
+    modern:{persona:"Jony Ive", terr:"Diseño industrial y simplicidad"}},
+  CXO:{order:7, role:"Chief Experience Officer", emoji:"🌐", side:"creativo", mentors:"Head of CX / cliente",
+    legend:{persona:"Howard Schultz", terr:"Escenografía, inmersión y cohesión sensorial"},
+    modern:{persona:"Carlos Ratti", terr:"Ciudades inteligentes y experiencia urbana"}},
+  CSO:{order:8, role:"Chief Storytelling Officer", emoji:"📖", side:"creativo", mentors:"Head of Story / estrategia",
+    legend:{persona:"George Lucas", terr:"Storyworld, expansión y coherencia narrativa"},
+    modern:{persona:"Ryan Reynolds", terr:"Marketing viral y narrativa de marca"}},
+};
+const ROLE_KEYS = Object.keys(CONSEJEROS).sort((a,b)=>CONSEJEROS[a].order-CONSEJEROS[b].order);
+
+// ── Estado persistente ──
+const LS = "yarig_startups_v1";
+let state = loadState();
+function loadState(){
+  try{ const d=JSON.parse(localStorage.getItem(LS)); if(d&&d.members) return d; }catch(e){}
+  return { startup:"", gen:"legend", members:[] };
+}
+function save(){ localStorage.setItem(LS, JSON.stringify(state)); }
+function uid(){ return "m"+Math.random().toString(36).slice(2,9); }
+function esc(s){ return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+// ── Render ──
+const $ = id => document.getElementById(id);
+
+function fillRoleSelect(){
+  $("mRole").innerHTML = ROLE_KEYS.map(k=>{
+    const c=CONSEJEROS[k];
+    return `<option value="${k}">${c.emoji} ${k} — mentoriza al ${esc(c.mentors)}</option>`;
+  }).join("");
+  updateRoleHint();
+}
+function persona(key){ return CONSEJEROS[key][state.gen]; }
+function updateRoleHint(){
+  const k=$("mRole").value, c=CONSEJEROS[k], p=persona(k);
+  $("roleHint").innerHTML = `Mentor: <b>${c.emoji} ${esc(p.persona)}</b> · <span style="color:var(--muted)">${esc(p.terr)}</span>`;
+}
+
+function render(){
+  $("startupName").value = state.startup||"";
+  document.querySelectorAll("#genToggle button").forEach(b=>b.classList.toggle("active", b.dataset.gen===state.gen));
+  // team
+  const grid=$("teamGrid"), empty=$("emptyState");
+  grid.innerHTML = state.members.map(memberCard).join("");
+  empty.style.display = state.members.length? "none":"block";
+  $("teamCount").textContent = state.members.length? `· ${state.members.length} ${state.members.length===1?"miembro":"miembros"}`:"";
+  renderCoverage();
+  updateRoleHint();
+}
+
+function memberCard(m){
+  const c=CONSEJEROS[m.role], p=persona(m.role);
+  return `<div class="member">
+    <div class="m-top">
+      <div class="m-side ${c.side}"></div>
+      <div class="m-name">${esc(m.name)}</div>
+      ${m.title?`<div class="m-title">${esc(m.title)}</div>`:""}
+      <span class="badge">${c.emoji} ${m.role} · ${esc(c.role)}</span>
+    </div>
+    <div class="mentor">
+      <div class="lbl">Consejero asignado</div>
+      <div class="who"><span class="emoji">${c.emoji}</span>
+        <div><b>${esc(p.persona)}</b><br><span class="persona">${m.role} del Consejo</span></div></div>
+      <div class="terr">Le ayuda a mejorar en: ${esc(p.terr)}.</div>
+    </div>
+    <div class="m-actions">
+      <button onclick="cycleRole('${m.id}')">↻ Cambiar rol</button>
+      <button onclick="removeMember('${m.id}')">🗑 Quitar</button>
+    </div>
+  </div>`;
+}
+
+function renderCoverage(){
+  const used = new Set(state.members.map(m=>m.role));
+  $("coverage").innerHTML = ROLE_KEYS.map(k=>{
+    const c=CONSEJEROS[k], filled=used.has(k);
+    return `<span class="chip ${filled?"filled":"vacant"}" title="${filled?"Cubierto":"Sin miembro asignado"}">
+      <span class="dot"></span>${c.emoji} ${k}</span>`;
+  }).join("");
+}
+
+// ── Acciones ──
+function addMember(){
+  const name=$("mName").value.trim();
+  if(!name){ $("mName").focus(); return; }
+  state.members.push({ id:uid(), name, role:$("mRole").value, title:$("mTitle").value.trim() });
+  $("mName").value=""; $("mTitle").value="";
+  save(); render(); $("mName").focus();
+}
+function removeMember(id){
+  state.members = state.members.filter(m=>m.id!==id); save(); render();
+}
+function cycleRole(id){
+  const m=state.members.find(x=>x.id===id); if(!m) return;
+  const i=ROLE_KEYS.indexOf(m.role); m.role=ROLE_KEYS[(i+1)%ROLE_KEYS.length]; save(); render();
+}
+
+// ── Wiring ──
+fillRoleSelect();
+$("addBtn").onclick = addMember;
+$("mName").addEventListener("keydown", e=>{ if(e.key==="Enter") addMember(); });
+$("mRole").addEventListener("change", updateRoleHint);
+$("startupName").addEventListener("input", e=>{ state.startup=e.target.value; save(); });
+document.querySelectorAll("#genToggle button").forEach(b=>{
+  b.onclick = ()=>{ state.gen=b.dataset.gen; save(); render(); };
+});
+render();
+</script>
+</body>
+</html>
