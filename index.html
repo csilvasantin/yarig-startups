@@ -912,10 +912,11 @@ function normYTask(t){
 function yTaskCard(t,writable){const n=normYTask(t);
   const st=n.status==="proc"?'<span class="sbadge proc">EN PROCESO</span>':n.status==="fin"?'<span class="sbadge fin">FINALIZADA</span>':'<span class="sbadge pend">PENDIENTE</span>';
   let act="";
-  if(writable&&n.id&&n.status!=="fin"){
+  if(writable&&n.id){
     const d=esc(n.desc).replace(/'/g,"&#39;");
     if(n.status==="pend")act+=`<button class="tb" onclick="yarigAction('${n.id}','start','${d}')">▶ INICIAR</button>`;
     if(n.status==="proc")act+=`<button class="tb go" onclick="yarigAction('${n.id}','finish','${d}')">⏹ FINALIZAR</button><button class="tb blue" onclick="yarigAction('${n.id}','pause','${d}')">⏸ PAUSAR</button>`;
+    act+=`<button class="tb red" onclick="yarigAction('${n.id}','delete','${d}')">🗑 BORRAR</button>`;
   }
   return `<div class="tk ${n.status}"><div class="area" style="background:var(--neon2)"></div>
     <div class="td">${esc(n.desc)}</div>
@@ -930,14 +931,14 @@ async function yarigWrite(action,payload){
   if(!r.ok)throw new Error("HTTP "+r.status); return r.json();
 }
 async function yarigAction(id,action,desc){
-  const verb=action==="start"?"INICIAR":action==="finish"?"FINALIZAR":"PAUSAR";
+  const verb=action==="start"?"INICIAR":action==="finish"?"FINALIZAR":action==="delete"?"BORRAR":"PAUSAR";
   if(!confirm(`¿${verb} esta tarea en Yarig.ai REAL?\n\n"${desc.replace(/&#39;/g,"'")}"\n\n(Escribe en producción)`))return;
   try{
     const res=await yarigWrite(action,{id});
-    // start devuelve el objeto tarea (truthy); finish/pause usan json_close_task,
+    // start/delete devuelven objeto/true (truthy); finish/pause usan json_close_task,
     // que devuelve false EN ÉXITO (Yarig: result is not None). Por eso distinguimos.
-    const ok = action==="start" ? !!(res&&res.ok&&res.data&&res.data!==false)
-                                 : !!(res&&res.ok&&res.data!==undefined&&res.data!==null);
+    const ok = (action==="finish"||action==="pause") ? !!(res&&res.ok&&res.data!==undefined&&res.data!==null)
+                                                      : !!(res&&res.ok&&res.data&&res.data!==false);
     if(ok){ showToast("🛰️ "+verb+" OK"); sfxLevel(); }
     else { showToast("⚠ Yarig rechazó la acción"); }
     yarigCache.at=0; // invalida cache
