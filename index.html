@@ -306,6 +306,14 @@
         <div class="missions" id="pmMissions"></div>
       </div>
       <div id="pmTasksView" style="display:none">
+        <div style="border:2px solid var(--neon2);padding:11px;margin-bottom:13px">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:9px">
+            <span class="px" style="color:var(--neon2);font-size:.5rem;text-shadow:0 0 5px var(--neon2)">🛰️ TAREAS REALES · YARIG</span>
+            <button class="jb on" onclick="syncPlayerYarig()">🔄 SINCRONIZAR</button>
+            <button class="jb" onclick="mapPlayerYarig()">🔗 MAPEAR</button>
+          </div>
+          <div id="pmYarigTasks"><div style="font-size:.92rem;color:var(--muted)">Pulsa SINCRONIZAR para traer las tareas reales de esta persona desde Yarig.ai.</div></div>
+        </div>
         <div class="jbar" id="pmJourney"></div>
         <div class="addtask">
           <input id="ntDesc" placeholder="Descripción de la tarea…" autocomplete="off">
@@ -386,7 +394,8 @@ function normalize(d){
     s.departments=s.departments||[];s.members=s.members||[];
     s.members.forEach(m=>{if(m.deptId===undefined)m.deptId=null;if(!m.avatar)m.avatar=AVATARS[0];
       if(typeof m.xp!=="number")m.xp=0;m.missions=m.missions||[];
-      m.tasks=m.tasks||[]; m.journey=m.journey||{active:false,start:0,overtime:false,otStart:0};});});
+      if(typeof m.tasks==="string"){m.okr=m.tasks;m.tasks=[];}
+      m.tasks=Array.isArray(m.tasks)?m.tasks:[]; m.journey=m.journey||{active:false,start:0,overtime:false,otStart:0};});});
   if(!d.startups.some(s=>s.id===d.activeId))d.activeId=d.startups[0].id;
   return d;
 }
@@ -633,7 +642,8 @@ function addDept(){
 function addMember(){
   const name=$("mName").value.trim(); if(!name){$("mName").focus();return;}
   cur().members.push({id:uid(),name,role:$("mRole").value,title:$("mTitle").value.trim(),deptId:$("mDept").value||null,
-    xp:0,missions:[],assessment:"",tasks:"",streak:0,lastDay:"",avatar:AVATARS[Math.floor(Math.random()*AVATARS.length)]});
+    xp:0,missions:[],assessment:"",tasks:[],journey:{active:false,start:0,overtime:false,otStart:0},
+    streak:0,lastDay:"",avatar:AVATARS[Math.floor(Math.random()*AVATARS.length)]});
   $("mName").value="";$("mTitle").value="";save();checkAchievements();render();sfxCoin();$("mName").focus();
 }
 let curId=null;
@@ -648,7 +658,7 @@ function openPlayer(id){
   $("pmMentorEmoji").textContent=c.emoji;
   $("pmMentorName").textContent="MENTOR ▸ "+persona(m.role).toUpperCase();
   $("pmAssessment").textContent=m.assessment||`Pega las tareas/OKRs de ${m.name} y pide misiones a ${persona(m.role)}.`;
-  $("pmTasks").value=m.tasks||"";
+  $("pmTasks").value=m.okr||"";
   $("pmStatus").innerHTML="";
   renderMissions(m);
   $("pmCoach").style.display="block"; $("pmTasksView").style.display="none";
@@ -681,13 +691,13 @@ function showToast(t){const el=$("toast");el.textContent=t;el.classList.add("sho
 async function askMentor(){
   const m=findMember(curId); if(!m)return;
   const who=persona(m.role);
-  m.tasks=$("pmTasks").value.trim();
-  if(!m.tasks){$("pmTasks").focus();return;}
+  m.okr=$("pmTasks").value.trim();
+  if(!m.okr){$("pmTasks").focus();return;}
   save();
   $("pmStatus").innerHTML=`<div class="loading">${who.toUpperCase()} ESTÁ PENSANDO…</div>`;
   $("pmAsk").disabled=true;
   const prompt=`Eres ${who}, mentor de ${m.name} (${m.role} de la startup ${cur().name}). `+
-    `Tareas/OKRs actuales de ${m.name}:\n${m.tasks}\n\n`+
+    `Tareas/OKRs actuales de ${m.name}:\n${m.okr}\n\n`+
     `Responde en español, en tu voz característica. Primero UNA o DOS frases evaluando su foco. `+
     `Luego EXACTAMENTE 3 misiones de mejora concretas y accionables, cada una en su propia línea con el prefijo "MISION: ".`;
   try{
@@ -866,16 +876,65 @@ async function syncYarig(){
     html+=`<p class="ysec">📋 MIS TAREAS HOY · ${tasks.length}</p>`;
     html+=tasks.length?tasks.map(ytaskCard).join(""):`<div class="empty" style="padding:18px;font-size:.45rem">SIN TAREAS HOY EN YARIG</div>`;
     if(Array.isArray(rk)&&rk.length){
-      html+=`<p class="ysec">🏆 RANKING DEL EQUIPO · YARIG</p><div class="rank">`+
-        rk.map((u,i)=>`<div class="rrow p${i+1}"><div class="pos">${["🥇","🥈","🥉"][i]||("#"+(i+1))}</div><div class="rava">🧑‍🚀</div><div><div class="rnm">${esc(u.name||u.user||u.username||"—")}</div></div><div class="rxp"><b>${esc(String(u.score??u.points??u.rank??u.total??""))}</b></div></div>`).join("")+`</div>`;
+      html+=`<p class="ysec">👥 EQUIPO YARIG · ${rk.length}</p><div class="rank">`+
+        rk.slice(0,30).map((u,i)=>`<div class="rrow"><div class="pos">#${i+1}</div><div class="rava">🧑‍🚀</div><div><div class="rnm">${esc(u.name||u.user||"—")}</div><div class="rsub">${esc(u.email||"")}${u.remote_mode==="1"?" · 🏠 remoto":""}</div></div></div>`).join("")+`</div>`;
     }
-    if(Array.isArray(co)&&co.length){
-      html+=`<p class="ysec">🏢 TAREAS DE LA EMPRESA · ${co.length}</p>`+co.slice(0,40).map(ytaskCard).join("");
+    const coTasks=(co&&Array.isArray(co.tasks))?co.tasks:[];
+    if(coTasks.length){
+      const byUser={}; coTasks.forEach(t=>{const u=t.name||"—";(byUser[u]=byUser[u]||[]).push(t);});
+      html+=`<p class="ysec">🏢 TAREAS DE LA EMPRESA · ${coTasks.length}</p>`;
+      Object.keys(byUser).forEach(u=>{ html+=`<div style="font-size:.95rem;color:var(--neon2);margin:9px 0 6px">👤 ${esc(u)} · ${byUser[u].length}</div>`+byUser[u].map(yTaskCard).join(""); });
     }
-    if((sc===false||sc===undefined)&&!tasks.length&&!(Array.isArray(rk)&&rk.length)&&!(Array.isArray(co)&&co.length))
+    if((sc===false||sc===undefined)&&!tasks.length&&!(Array.isArray(rk)&&rk.length)&&!coTasks.length)
       html+=`<div class="err">Yarig devolvió datos vacíos — la sesión del service account del bridge puede haber caducado (re-login del bridge necesario). Score/jornada pueden seguir disponibles.</div>`;
     body.innerHTML=html; sfxCoin();
   }catch(e){ body.innerHTML=`<div class="err">⚠ No se pudo conectar con Yarig: ${esc(e.message||e)}</div>`; }
+}
+
+// ── Yarig por persona (tareas reales mapeadas al player) ──
+let yarigCache={company:null,team:null,at:0};
+async function loadYarigData(force){
+  if(!force&&yarigCache.company&&Date.now()-yarigCache.at<60000)return yarigCache;
+  const [co,team]=await Promise.allSettled([yarigFetch("company/tasks"),yarigFetch("team/ranking")]);
+  yarigCache.company=(co.status==="fulfilled"&&co.value.data&&Array.isArray(co.value.data.tasks))?co.value.data.tasks:[];
+  yarigCache.team=(team.status==="fulfilled"&&Array.isArray(team.value.data))?team.value.data:[];
+  yarigCache.at=Date.now();
+  return yarigCache;
+}
+function normYTask(t){
+  const fin=String(t.finished)==="1";
+  const status=fin?"fin":(t.start_time&&!t.end_time?"proc":"pend");
+  let el=Number(t.elapsed); if(!isFinite(el))el=0;
+  return {desc:t.description||"(sin descripción)",project:t.project||t.customer||"",status,
+    elapsed:el,user:t.name||"",date:t.start_time||t.creation_time||""};
+}
+function yTaskCard(t){const n=normYTask(t);
+  const st=n.status==="proc"?'<span class="sbadge proc">EN PROCESO</span>':n.status==="fin"?'<span class="sbadge fin">FINALIZADA</span>':'<span class="sbadge pend">PENDIENTE</span>';
+  return `<div class="tk ${n.status}"><div class="area" style="background:var(--neon2)"></div>
+    <div class="td">${esc(n.desc)}</div>
+    <div class="tm">${st}${n.project?` · 📁 ${esc(n.project)}`:""}${n.elapsed?` · <span class="timer">⏱ ${fmtTime(n.elapsed)}</span>`:""} · <span style="color:var(--neon2);font-size:.78rem">🛰️ ${esc(n.user)}</span></div></div>`;
+}
+async function syncPlayerYarig(){
+  const m=findMember(curId); if(!m)return;
+  const box=$("pmYarigTasks"); box.innerHTML='<div class="loading">SINCRONIZANDO CON YARIG…</div>';
+  try{
+    const c=await loadYarigData(true);
+    const target=(m.yarigName||m.name||"").trim().toLowerCase();
+    const mine=c.company.filter(t=>String(t.name||"").trim().toLowerCase()===target);
+    const names=[...new Set(c.company.map(t=>t.name).filter(Boolean))];
+    if(!mine.length){
+      box.innerHTML=`<div style="font-size:.95rem;color:var(--muted)">Sin tareas en Yarig para <b style="color:var(--fg)">${esc(m.yarigName||m.name)}</b>.</div>`
+        +(names.length?`<div style="font-size:.9rem;color:var(--muted);margin-top:7px">Personas con tareas hoy: ${names.map(esc).join(", ")}.<br>Usa 🔗 MAPEAR si su nombre en Yarig es distinto.</div>`:`<div style="font-size:.9rem;color:var(--muted);margin-top:7px">El bridge no devolvió tareas (sesión del service account).</div>`);
+    } else {
+      box.innerHTML=`<p style="font-size:.95rem;color:var(--muted);margin:0 0 8px">${mine.length} tarea(s) real(es) de <b style="color:var(--fg)">${esc(m.yarigName||m.name)}</b>:</p>`+mine.map(yTaskCard).join("");
+    }
+    sfxCoin();
+  }catch(e){ box.innerHTML=`<div class="err">⚠ Yarig no responde: ${esc(e.message||e)}</div>`; }
+}
+function mapPlayerYarig(){
+  const m=findMember(curId); if(!m)return;
+  const v=prompt("Nombre EXACTO del usuario en Yarig (vacío = usar el nombre del player):",m.yarigName||m.name);
+  if(v===null)return; m.yarigName=v.trim()||""; save(); syncPlayerYarig();
 }
 
 // ── Docs / evolución ──
@@ -887,6 +946,7 @@ const CHANGELOG=[
   {t:"NIVEL 5 · Liga en la nube",d:"Cloudflare Worker + KV: publica tus startups por código de liga y compite entre dispositivos en tiempo (casi) real."},
   {t:"NIVEL 6 · Yarig real",d:"Pestaña 🛰️ YARIG con datos reales de Yarig.ai (score, jornada/fichaje, tareas, ranking de equipo) vía el bridge admira-live-worker, en clave arcade."},
   {t:"NIVEL 7 · Mis Tareas arcade",d:"Workspace de tareas por jugador estilo Yarig: secciones EQUIPO/FINANZAS/MARCA/PERSONAL, añadir tarea, jornada + horas extras, estados Pendiente/En proceso/Finalizada con timer de tiempo dedicado, Iniciar/Finalizar/Pausar/Editar/Borrar e historial. Finalizar una tarea da +30 XP."},
+  {t:"NIVEL 8 · Yarig real por persona",d:"Cada jugador trae sus TAREAS REALES de Yarig.ai (match por nombre, mapeable) con su estado y tiempo real. Pestaña YARIG con el equipo real (23) y tareas de empresa por persona. Fix del bridge: ranking y company/tasks ahora reciben sus params."},
 ];
 const YARIG_STRUCTURE=`Yarig.ai original que vamos replicando en arcade: secciones EQUIPO · FINANZAS · MARCA · PERSONAL · "Mis tareas" con estados Pendiente / En proceso / Finalizada · Estimación + Tiempo total dedicado · Añadir tareas · Finalizar jornada · Iniciar/Finalizar horas extras · Control/Iniciar/Editar/Borrar tarea · Historial de tareas.`;
 function openDocs(){
