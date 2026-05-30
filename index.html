@@ -145,6 +145,27 @@
   .medal .mn{font-family:"Press Start 2P";font-size:.5rem;color:var(--gold);margin-top:6px;line-height:1.5}
   .medal .md{font-size:.92rem;color:var(--muted);margin-top:6px;line-height:1.25}
   .medal.got .mn{text-shadow:0 0 6px var(--gold)}
+  /* mis tareas (workspace por jugador) */
+  .jbar{display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+  .jbar .jlbl{font-size:.92rem;color:var(--muted);margin-right:4px}
+  .jb{font-family:"Press Start 2P";font-size:.43rem;border:2px solid var(--line);background:#0c0820;color:var(--neon);padding:8px 9px;cursor:pointer;box-shadow:3px 3px 0 #000}
+  .jb.red{color:var(--pink);border-color:#7a0a3d}
+  .jb.on{color:var(--gold);border-color:var(--gold);text-shadow:0 0 5px var(--gold)}
+  .addtask{border:2px dashed var(--line);padding:11px;margin-bottom:13px}
+  .addtask input,.addtask select{margin-bottom:7px}
+  .taskfilter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:11px}
+  .tf{font-family:"Press Start 2P";font-size:.42rem;border:2px solid var(--line);background:#0c0820;color:var(--muted);padding:6px 8px;cursor:pointer}
+  .tf.active{color:#fff;border-color:var(--neon2)}
+  .tk{border:2px solid var(--line);background:#0e0a22;box-shadow:3px 3px 0 #000;padding:11px 11px 11px 14px;margin-bottom:9px;position:relative;overflow:hidden}
+  .tk.proc{border-color:#2a6b1f}
+  .tk .area{position:absolute;left:0;top:0;width:5px;height:100%}
+  .tk .td{font-size:1.06rem;color:#fff;margin-bottom:5px}
+  .tk.fin .td{color:var(--muted);text-decoration:line-through}
+  .tk .tm{display:flex;gap:9px;flex-wrap:wrap;align-items:center;font-size:.9rem;color:var(--muted)}
+  .tk .tact{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
+  .tb{font-family:"Press Start 2P";font-size:.42rem;border:2px solid var(--line);background:#0c0820;color:var(--neon);padding:7px 8px;cursor:pointer}
+  .tb.blue{color:var(--neon2)} .tb.red{color:var(--pink)} .tb.go{color:var(--gold);border-color:var(--gold)}
+  .tk .timer{font-family:"Press Start 2P";font-size:.5rem;color:var(--gold);text-shadow:0 0 5px var(--gold)}
   /* yarig real */
   .ybar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:0 0 6px}
   .ystat{font-family:"Press Start 2P";font-size:.55rem;border:2px solid var(--neon2);color:var(--neon2);background:#06141a;padding:10px 12px;box-shadow:3px 3px 0 #000;line-height:1.6}
@@ -266,18 +287,40 @@
       <div class="x px" id="pmClose">X</div>
     </div>
     <div class="mbody">
-      <div class="mentorbox">
-        <div class="ma" id="pmMentorEmoji">🏛️</div>
-        <div class="bubble">
-          <div class="who" id="pmMentorName">MENTOR</div>
-          <div id="pmAssessment">Pega las tareas/OKRs de este miembro y pide misiones a su consejero.</div>
-        </div>
+      <div class="tabs" id="pmTabs" style="margin-bottom:13px">
+        <button class="tab active" data-mtab="coach">⚡ COACHING</button>
+        <button class="tab" data-mtab="tasks">📋 MIS TAREAS</button>
       </div>
-      <label class="fld">TAREAS / OKRs ACTUALES</label>
-      <textarea id="pmTasks" rows="3" placeholder="1) cerrar ronda pre-seed&#10;2) contratar primer comercial&#10;3) definir pricing"></textarea>
-      <button class="btn blue" id="pmAsk">⚡ PEDIR MISIONES AL MENTOR</button>
-      <div id="pmStatus"></div>
-      <div class="missions" id="pmMissions"></div>
+      <div id="pmCoach">
+        <div class="mentorbox">
+          <div class="ma" id="pmMentorEmoji">🏛️</div>
+          <div class="bubble">
+            <div class="who" id="pmMentorName">MENTOR</div>
+            <div id="pmAssessment">Pega las tareas/OKRs de este miembro y pide misiones a su consejero.</div>
+          </div>
+        </div>
+        <label class="fld">TAREAS / OKRs ACTUALES</label>
+        <textarea id="pmTasks" rows="3" placeholder="1) cerrar ronda pre-seed&#10;2) contratar primer comercial&#10;3) definir pricing"></textarea>
+        <button class="btn blue" id="pmAsk">⚡ PEDIR MISIONES AL MENTOR</button>
+        <div id="pmStatus"></div>
+        <div class="missions" id="pmMissions"></div>
+      </div>
+      <div id="pmTasksView" style="display:none">
+        <div class="jbar" id="pmJourney"></div>
+        <div class="addtask">
+          <input id="ntDesc" placeholder="Descripción de la tarea…" autocomplete="off">
+          <div class="row2">
+            <select id="ntArea"></select>
+            <input id="ntProj" placeholder="Proyecto" autocomplete="off" style="flex:1">
+            <input id="ntEst" type="number" min="0" step="0.5" placeholder="Est.h" style="width:78px">
+          </div>
+          <button class="btn green" id="ntAdd">➕ AÑADIR TAREA</button>
+        </div>
+        <div class="taskfilter" id="taskFilter"></div>
+        <div id="pmTaskList"></div>
+        <p class="ysec" id="histTitle" style="margin-top:14px;display:none">🗂 HISTORIAL</p>
+        <div id="pmHistory"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -342,7 +385,8 @@ function normalize(d){
     if(!s.ownerId)s.ownerId=d.deviceId;
     s.departments=s.departments||[];s.members=s.members||[];
     s.members.forEach(m=>{if(m.deptId===undefined)m.deptId=null;if(!m.avatar)m.avatar=AVATARS[0];
-      if(typeof m.xp!=="number")m.xp=0;m.missions=m.missions||[];});});
+      if(typeof m.xp!=="number")m.xp=0;m.missions=m.missions||[];
+      m.tasks=m.tasks||[]; m.journey=m.journey||{active:false,start:0,overtime:false,otStart:0};});});
   if(!d.startups.some(s=>s.id===d.activeId))d.activeId=d.startups[0].id;
   return d;
 }
@@ -607,9 +651,11 @@ function openPlayer(id){
   $("pmTasks").value=m.tasks||"";
   $("pmStatus").innerHTML="";
   renderMissions(m);
+  $("pmCoach").style.display="block"; $("pmTasksView").style.display="none";
+  document.querySelectorAll("#pmTabs .tab").forEach(b=>b.classList.toggle("active",b.dataset.mtab==="coach"));
   $("ov").classList.add("show"); sfxClick();
 }
-function closePlayer(){$("ov").classList.remove("show");curId=null;}
+function closePlayer(){stopTick();$("ov").classList.remove("show");curId=null;}
 function renderMissions(m){
   $("pmMissions").innerHTML=(m.missions||[]).map((q,i)=>`
     <div class="mission ${q.done?"done":""}">
@@ -680,6 +726,99 @@ async function councilAsk(roleKey, message){
   throw new Error(lastErr||"sin conexión");
 }
 
+// ── MIS TAREAS (workspace por jugador, estilo Yarig en arcade) ──
+const AREAS=[
+  {key:"EQUIPO",emoji:"👍",color:"#2ecc71"},
+  {key:"FINANZAS",emoji:"📊",color:"#e67e22"},
+  {key:"MARCA",emoji:"👁",color:"#e74c3c"},
+  {key:"PERSONAL",emoji:"⭐",color:"#9b59b6"},
+];
+const XP_PER_TASK=30;
+let taskFilter="ALL", tickIv=null;
+function areaOf(k){return AREAS.find(a=>a.key===k)||{key:k||"PERSONAL",emoji:"📋",color:"var(--line)"};}
+function fmtTime(sec){sec=Math.max(0,Math.floor(sec));const h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),s=sec%60;
+  return h?`${h}h ${m}m`:(m?`${m}m ${s}s`:`${s}s`);}
+function taskElapsed(t){return (t.timeSpent||0)+(t.status==="proc"&&t.startedAt?(Date.now()-t.startedAt)/1000:0);}
+function fillTaskArea(){$("ntArea").innerHTML=AREAS.map(a=>`<option value="${a.key}">${a.emoji} ${a.key}</option>`).join("");}
+
+function renderJourney(m){
+  const j=m.journey||{}; const since=j.active&&j.start?` · desde ${new Date(j.start).toLocaleTimeString().slice(0,5)}`:"";
+  $("pmJourney").innerHTML=
+    `<span class="jlbl">JORNADA${since}</span>`+
+    `<button class="jb ${j.active?"on":""}" onclick="toggleJourney()">${j.active?"⏹ FINALIZAR JORNADA":"▶ INICIAR JORNADA"}</button>`+
+    `<button class="jb red ${j.overtime?"on":""}" onclick="toggleOvertime()">${j.overtime?"🔥 FINALIZAR H. EXTRAS":"🔥 INICIAR H. EXTRAS"}</button>`;
+}
+function toggleJourney(){const m=findMember(curId);if(!m)return;const j=m.journey;
+  j.active=!j.active; j.start=j.active?Date.now():0; if(!j.active)j.overtime=false;
+  save(); renderJourney(m); beep(j.active?880:440,.1);}
+function toggleOvertime(){const m=findMember(curId);if(!m)return;const j=m.journey;
+  if(!j.active){toggleJourney();} j.overtime=!j.overtime; j.otStart=j.overtime?Date.now():0; save(); renderJourney(m); beep(700,.08);}
+
+function renderTaskWorkspace(m){
+  renderJourney(m);
+  $("taskFilter").innerHTML=[{key:"ALL",emoji:"🎮"}].concat(AREAS).map(a=>
+    `<span class="tf ${taskFilter===a.key?"active":""}" style="${taskFilter===a.key?`color:${a.color||"#fff"}`:""}" onclick="setTaskFilter('${a.key}')">${a.emoji} ${a.key}</span>`).join("");
+  const active=(m.tasks||[]).filter(t=>t.status!=="fin"&&(taskFilter==="ALL"||t.area===taskFilter));
+  const done=(m.tasks||[]).filter(t=>t.status==="fin"&&(taskFilter==="ALL"||t.area===taskFilter));
+  $("pmTaskList").innerHTML=active.length?active.map(taskCard).join(""):`<div class="empty" style="padding:16px;font-size:.45rem">SIN TAREAS · AÑADE UNA</div>`;
+  $("histTitle").style.display=done.length?"block":"none";
+  $("pmHistory").innerHTML=done.map(taskCard).join("");
+}
+function taskCard(t){
+  const a=areaOf(t.area), el=taskElapsed(t);
+  const st=t.status==="proc"?'<span class="sbadge proc">EN PROCESO</span>':t.status==="fin"?'<span class="sbadge fin">FINALIZADA</span>':'<span class="sbadge pend">PENDIENTE</span>';
+  let act="";
+  if(t.status==="pend")act=`<button class="tb" onclick="startTask('${t.id}')">▶ INICIAR</button>`;
+  else if(t.status==="proc")act=`<button class="tb go" onclick="finishTask('${t.id}')">⏱ FINALIZAR</button><button class="tb blue" onclick="pauseTask('${t.id}')">⏸ PAUSAR</button>`;
+  act+=`<button class="tb blue" onclick="editTask('${t.id}')">✎ EDITAR</button><button class="tb red" onclick="delTask('${t.id}')">🗑 BORRAR</button>`;
+  return `<div class="tk ${t.status}">
+    <div class="area" style="background:${a.color}"></div>
+    <div class="td">${esc(t.desc)}</div>
+    <div class="tm">${st} · ${a.emoji} ${a.key}${t.project?` · 📁 ${esc(t.project)}`:""}${t.est?` · Est: ${esc(String(t.est))}h`:""}
+      ${el>0||t.status==="proc"?`· <span class="timer">⏱ ${fmtTime(el)}</span>`:""}</div>
+    <div class="tact">${act}</div>
+  </div>`;
+}
+function addTask(){
+  const m=findMember(curId);if(!m)return;
+  const desc=$("ntDesc").value.trim(); if(!desc){$("ntDesc").focus();return;}
+  m.tasks.unshift({id:uid(),desc,area:$("ntArea").value,project:$("ntProj").value.trim(),
+    est:$("ntEst").value?Number($("ntEst").value):"",status:"pend",timeSpent:0,startedAt:0,createdAt:Date.now()});
+  $("ntDesc").value="";$("ntProj").value="";$("ntEst").value="";
+  save(); renderTaskWorkspace(m); sfxCoin();
+}
+function startTask(id){const m=findMember(curId);if(!m)return;
+  m.tasks.forEach(t=>{if(t.status==="proc"){t.timeSpent=taskElapsed(t);t.status="pend";t.startedAt=0;}});
+  const t=m.tasks.find(x=>x.id===id); if(t){t.status="proc";t.startedAt=Date.now();}
+  save(); renderTaskWorkspace(m); beep(880,.08); startTick();}
+function pauseTask(id){const m=findMember(curId);if(!m)return;const t=m.tasks.find(x=>x.id===id);
+  if(t){t.timeSpent=taskElapsed(t);t.status="pend";t.startedAt=0;} save(); renderTaskWorkspace(m); beep(440,.08);}
+function finishTask(id){const m=findMember(curId);if(!m)return;const t=m.tasks.find(x=>x.id===id);
+  if(!t)return; t.timeSpent=taskElapsed(t); t.status="fin"; t.startedAt=0;
+  const before=levelOf(m.xp); m.xp=(m.xp||0)+XP_PER_TASK;
+  const today_=today(); if(m.lastDay!==today_){m.streak=(m.lastDay===yesterday())?(m.streak||0)+1:1;m.lastDay=today_;}
+  sfxMission(); if(levelOf(m.xp)>before){showToast("LEVEL UP! LV."+levelOf(m.xp));sfxLevel();}
+  else showToast("✓ TAREA +"+XP_PER_TASK+"XP");
+  save(); checkAchievements(); renderTaskWorkspace(m); $("pmLv").textContent="LV."+levelOf(m.xp)+" · "+(m.xp||0)+" XP"; render();}
+function editTask(id){const m=findMember(curId);if(!m)return;const t=m.tasks.find(x=>x.id===id);
+  if(!t)return; const v=prompt("Editar tarea:",t.desc); if(v===null)return; t.desc=v.trim()||t.desc; save(); renderTaskWorkspace(m);}
+function delTask(id){const m=findMember(curId);if(!m)return; m.tasks=m.tasks.filter(x=>x.id!==id); save(); renderTaskWorkspace(m); render(); beep(300,.08);}
+function setTaskFilter(k){taskFilter=k; const m=findMember(curId); if(m)renderTaskWorkspace(m); sfxClick();}
+function startTick(){ if(tickIv)return; tickIv=setInterval(()=>{
+  const m=findMember(curId); if(!m||$("pmTasksView").style.display==="none"){return;}
+  if(!m.tasks.some(t=>t.status==="proc")){stopTick();return;}
+  renderTaskWorkspace(m);
+},1000); }
+function stopTick(){ if(tickIv)clearInterval(tickIv); tickIv=null; }
+function setModalTab(tab){
+  $("pmCoach").style.display=tab==="coach"?"block":"none";
+  $("pmTasksView").style.display=tab==="tasks"?"block":"none";
+  document.querySelectorAll("#pmTabs .tab").forEach(b=>b.classList.toggle("active",b.dataset.mtab===tab));
+  if(tab==="tasks"){const m=findMember(curId); if(m){renderTaskWorkspace(m); if(m.tasks.some(t=>t.status==="proc"))startTick();}}
+  else stopTick();
+  sfxClick();
+}
+
 // ── Yarig.ai real (vía bridge admira-live-worker) ──
 const YARIG_BRIDGE="https://admira-live-worker.csilvasantin.workers.dev/api";
 async function yarigFetch(ep){
@@ -746,7 +885,8 @@ const CHANGELOG=[
   {t:"NIVEL 3 · Arcade League",d:"Ranking de jugadores con podio, rachas 🔥 (días consecutivos) y 8 medallas/logros con toast."},
   {t:"NIVEL 4 · Liga + Departamentos",d:"Varias startups que compiten en una liga + departamentos por startup con su propio ranking."},
   {t:"NIVEL 5 · Liga en la nube",d:"Cloudflare Worker + KV: publica tus startups por código de liga y compite entre dispositivos en tiempo (casi) real."},
-  {t:"NIVEL 6 · Yarig real (en curso)",d:"Pestaña 🛰️ YARIG con datos reales de Yarig.ai (score, jornada/fichaje, tareas, ranking de equipo) vía el bridge admira-live-worker, en clave arcade."},
+  {t:"NIVEL 6 · Yarig real",d:"Pestaña 🛰️ YARIG con datos reales de Yarig.ai (score, jornada/fichaje, tareas, ranking de equipo) vía el bridge admira-live-worker, en clave arcade."},
+  {t:"NIVEL 7 · Mis Tareas arcade",d:"Workspace de tareas por jugador estilo Yarig: secciones EQUIPO/FINANZAS/MARCA/PERSONAL, añadir tarea, jornada + horas extras, estados Pendiente/En proceso/Finalizada con timer de tiempo dedicado, Iniciar/Finalizar/Pausar/Editar/Borrar e historial. Finalizar una tarea da +30 XP."},
 ];
 const YARIG_STRUCTURE=`Yarig.ai original que vamos replicando en arcade: secciones EQUIPO · FINANZAS · MARCA · PERSONAL · "Mis tareas" con estados Pendiente / En proceso / Finalizada · Estimación + Tiempo total dedicado · Añadir tareas · Finalizar jornada · Iniciar/Finalizar horas extras · Control/Iniciar/Editar/Borrar tarea · Historial de tareas.`;
 function openDocs(){
@@ -778,6 +918,10 @@ $("docsBtn").onclick=openDocs;
 $("docClose").onclick=closeDocs;
 $("docOv").addEventListener("click",e=>{if(e.target===$("docOv"))closeDocs();});
 $("yarigSync").onclick=syncYarig;
+fillTaskArea();
+$("ntAdd").onclick=addTask;
+$("ntDesc").addEventListener("keydown",e=>{if(e.key==="Enter")addTask();});
+document.querySelectorAll("#pmTabs .tab").forEach(b=>b.onclick=()=>setModalTab(b.dataset.mtab));
 render();
 // arranque cloud si ya había liga activa
 $("leagueCode").value=state.leagueCode||"";
