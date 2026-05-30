@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>YARIG ARCADE · Consejo de Startup</title>
+<title>YARIG ARCADE · Liga de Startups</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
 <style>
@@ -21,7 +21,6 @@
       radial-gradient(900px 500px at 85% -10%, #2a1060 0%, transparent 60%),
       radial-gradient(700px 500px at 5% 110%, #07203a 0%, transparent 55%);
     image-rendering:pixelated;}
-  /* scanlines + CRT vignette */
   body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:9999;
     background:repeating-linear-gradient(0deg, rgba(0,0,0,.16) 0 1px, transparent 1px 3px);
     mix-blend-mode:multiply;}
@@ -29,7 +28,6 @@
     box-shadow:inset 0 0 160px rgba(0,0,0,.7);}
   .px{font-family:"Press Start 2P",monospace}
   .wrap{max-width:1180px;margin:0 auto;padding:18px 16px 70px;position:relative;z-index:1}
-  /* header */
   header.top{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:14px}
   .title{font-size:1.15rem;line-height:1.5;color:var(--neon);
     text-shadow:0 0 6px var(--neon),3px 3px 0 #0a3d00}
@@ -41,7 +39,6 @@
   input,select,textarea{font-family:"VT323",monospace;font-size:1.05rem;background:var(--ink);
     border:2px solid var(--line);color:var(--fg);padding:8px 10px;outline:none}
   input:focus,select,textarea:focus{border-color:var(--neon2);box-shadow:0 0 0 2px rgba(0,229,255,.25)}
-  #startupName{min-width:170px}
   .toggle{display:inline-flex;border:2px solid var(--line);background:#0c0820;box-shadow:4px 4px 0 #000}
   .toggle button{font-family:"Press Start 2P";font-size:.5rem;background:transparent;border:0;color:var(--muted);
     padding:9px 11px;cursor:pointer}
@@ -49,7 +46,6 @@
   .iconbtn{font-family:"Press Start 2P";font-size:.5rem;border:2px solid var(--line);background:#0c0820;color:var(--muted);
     padding:9px 10px;cursor:pointer;box-shadow:4px 4px 0 #000}
   .iconbtn.on{color:var(--neon);border-color:var(--neon)}
-  /* layout */
   .cols{display:grid;grid-template-columns:320px 1fr;gap:18px;align-items:start}
   @media(max-width:860px){.cols{grid-template-columns:1fr}}
   .panel{border:3px solid var(--line);background:linear-gradient(180deg,#140b2c,#0d0820);box-shadow:6px 6px 0 #000}
@@ -65,12 +61,13 @@
   .btn:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #000}
   .btn.green{background:linear-gradient(180deg,#39ff14,#1f9e08);border-bottom-color:#0c5e00;color:#062b00;text-shadow:none}
   .btn.blue{background:linear-gradient(180deg,#00e5ff,#0088aa);border-bottom-color:#005f77;color:#022}
+  .row2{display:flex;gap:8px}
+  .row2 select{flex:1}
   .hint{font-size:.95rem;color:var(--muted);min-height:20px;margin-top:8px}
   .hint b{color:var(--fg)}
   .coverage{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
   .chip{font-family:"Press Start 2P";font-size:.42rem;padding:6px 7px;border:2px solid var(--line);background:#0c0820;color:#5d4f8f}
   .chip.filled{color:var(--neon);border-color:#2a6b1f;text-shadow:0 0 5px var(--neon)}
-  /* team grid */
   .sect{font-family:"Press Start 2P";font-size:.6rem;color:var(--gold);margin:0 0 10px;text-shadow:0 0 6px var(--gold)}
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
   .pc{border:3px solid var(--line);background:#0e0a22;box-shadow:5px 5px 0 #000;cursor:pointer;
@@ -89,10 +86,10 @@
   .xpfill{height:100%;background:repeating-linear-gradient(90deg,var(--neon) 0 6px,#23c000 6px 8px);box-shadow:0 0 8px var(--neon);transition:width .4s}
   .pc .mentor{font-family:"Press Start 2P";font-size:.45rem;color:var(--muted);padding:9px 13px 13px;line-height:1.7}
   .pc .mentor b{color:var(--neon2)}
+  .deptchip{display:inline-block;font-family:"Press Start 2P";font-size:.4rem;color:var(--purple);border:1px solid var(--line);padding:3px 6px;margin:0 13px 11px}
   .qbadge{position:absolute;top:8px;right:8px;font-family:"Press Start 2P";font-size:.42rem;color:#062b00;
     background:var(--neon);padding:4px 6px;box-shadow:0 0 8px var(--neon)}
   .empty{font-family:"Press Start 2P";font-size:.55rem;color:var(--muted);text-align:center;padding:40px 16px;line-height:2}
-  /* modal */
   .ov{position:fixed;inset:0;z-index:200;background:rgba(4,2,12,.82);display:none;align-items:center;justify-content:center;padding:16px}
   .ov.show{display:flex}
   .modal{width:min(640px,96vw);max-height:92vh;overflow:auto;border:3px solid var(--neon2);
@@ -120,15 +117,12 @@
   @keyframes bl{50%{opacity:.35}}
   .err{color:var(--pink);font-size:1rem;border:2px solid var(--pink);padding:10px;margin-top:10px}
   .foot{font-family:"Press Start 2P";font-size:.45rem;color:#5d4f8f;text-align:center;margin-top:24px;line-height:2.2}
-  /* tabs */
   .tabs{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
   .tab{font-family:"Press Start 2P";font-size:.55rem;color:var(--muted);background:#0c0820;border:2px solid var(--line);
     border-bottom:4px solid #000;padding:11px 13px;cursor:pointer;box-shadow:3px 3px 0 #000}
   .tab.active{color:var(--gold);border-color:var(--gold);text-shadow:0 0 6px var(--gold)}
   .tab:active{transform:translate(1px,1px)}
-  /* streak flame on cards */
   .streak{position:absolute;bottom:9px;right:10px;font-family:"Press Start 2P";font-size:.5rem;color:var(--gold);text-shadow:0 0 6px #ff7b00}
-  /* ranking */
   .rank{border:3px solid var(--line);background:#0c0820;box-shadow:5px 5px 0 #000}
   .rrow{display:flex;align-items:center;gap:12px;padding:12px 13px;border-bottom:2px solid #1c1140}
   .rrow:last-child{border-bottom:0}
@@ -136,13 +130,14 @@
   .rrow.p1 .pos{color:var(--gold);text-shadow:0 0 8px var(--gold)}
   .rrow.p2 .pos{color:#cfd8ff} .rrow.p3 .pos{color:#ff9d5c}
   .rrow.p1{background:linear-gradient(90deg,rgba(255,210,0,.10),transparent)}
+  .rrow.active-su{outline:2px solid var(--neon2);outline-offset:-2px}
   .rrow .rava{font-size:26px;width:40px;text-align:center}
   .rrow .rnm{font-size:1.15rem;color:#fff}
   .rrow .rsub{font-size:.9rem;color:var(--muted)}
-  .rrow .rxp{margin-left:auto;text-align:right}
+  .rrow .rxp{margin-left:auto;text-align:right;flex:none}
   .rrow .rxp b{font-family:"Press Start 2P";font-size:.6rem;color:var(--neon);text-shadow:0 0 6px var(--neon)}
   .rrow .rxp small{display:block;font-size:.85rem;color:var(--gold)}
-  /* medals */
+  .rrow .go{font-family:"Press Start 2P";font-size:.45rem;color:var(--neon2);cursor:pointer;border:2px solid var(--line);background:#0c0820;padding:7px 8px;margin-left:10px;flex:none}
   .medgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
   .medal{border:2px solid var(--line);background:#0c0820;box-shadow:4px 4px 0 #000;padding:14px 12px;text-align:center;opacity:.4;filter:grayscale(1)}
   .medal.got{opacity:1;filter:none;border-color:var(--gold);box-shadow:0 0 14px rgba(255,210,0,.3),4px 4px 0 #000}
@@ -150,7 +145,6 @@
   .medal .mn{font-family:"Press Start 2P";font-size:.5rem;color:var(--gold);margin-top:6px;line-height:1.5}
   .medal .md{font-size:.92rem;color:var(--muted);margin-top:6px;line-height:1.25}
   .medal.got .mn{text-shadow:0 0 6px var(--gold)}
-  /* level-up toast */
   #toast{position:fixed;left:50%;top:22%;transform:translateX(-50%) scale(0);z-index:500;
     font-family:"Press Start 2P";font-size:1rem;color:var(--gold);text-shadow:0 0 10px var(--gold),4px 4px 0 #000;
     border:3px solid var(--gold);background:#1a1400;padding:18px 26px;box-shadow:0 0 0 3px #000;transition:transform .25s}
@@ -161,10 +155,12 @@
 <div class="wrap">
   <header class="top">
     <div class="title px">YARIG<span style="color:var(--pink)"> ARCADE</span>
-      <span class="sub">CONSEJO DE STARTUP · MENTORES 1-A-1</span></div>
+      <span class="sub">LIGA DE STARTUPS · MENTORES DEL CONSEJO</span></div>
     <div class="hud">
       <div class="score">HI-SCORE<br><b id="hiScore">0</b> XP · <b id="teamLv">0</b> LV</div>
-      <input id="startupName" placeholder="TU STARTUP…" autocomplete="off">
+      <select id="startupSel" class="px" title="Startup activa"></select>
+      <button class="iconbtn" id="newStartupBtn" title="Nueva startup">＋ STARTUP</button>
+      <button class="iconbtn" id="renStartupBtn" title="Renombrar startup">✎</button>
       <div class="toggle" id="genToggle">
         <button data-gen="legend" class="active">★ LEYENDAS</button>
         <button data-gen="modern">▶ COETÁNEOS</button>
@@ -182,6 +178,11 @@
         <label class="fld">ROL EN LA STARTUP</label>
         <select id="mRole"></select>
         <div class="hint" id="roleHint"></div>
+        <label class="fld">DEPARTAMENTO</label>
+        <div class="row2">
+          <select id="mDept"></select>
+          <button class="iconbtn" id="newDeptBtn" title="Nuevo departamento">＋</button>
+        </div>
         <label class="fld">CARGO (OPCIONAL)</label>
         <input id="mTitle" placeholder="Co-fundador & CEO" autocomplete="off">
         <button class="btn" id="addBtn">► INSERT COIN</button>
@@ -192,31 +193,41 @@
 
     <div>
       <div class="tabs" id="tabs">
-        <button class="tab active" data-view="party">🎮 PARTY</button>
+        <button class="tab active" data-view="liga">🥇 LIGA</button>
+        <button class="tab" data-view="party">🎮 PARTY</button>
+        <button class="tab" data-view="depts">🏢 DEPTS</button>
         <button class="tab" data-view="rank">🏆 RANKING</button>
         <button class="tab" data-view="medals">🎖️ MEDALLAS</button>
       </div>
-      <div id="view-party">
+      <div id="view-liga">
+        <p class="sect px">🥇 LIGA DE STARTUPS</p>
+        <div class="rank" id="ligaList"></div>
+      </div>
+      <div id="view-party" style="display:none">
         <p class="sect px" id="teamTitle">PARTY</p>
         <div class="grid" id="grid"></div>
         <div class="empty" id="empty">NO PLAYERS YET<br><span style="font-size:.4rem;color:#5d4f8f">INSERTA UN MIEMBRO PARA EMPEZAR</span></div>
       </div>
+      <div id="view-depts" style="display:none">
+        <p class="sect px" id="deptTitle">🏢 DEPARTAMENTOS</p>
+        <div class="rank" id="deptList"></div>
+        <div class="empty" id="deptEmpty" style="display:none">SIN DEPARTAMENTOS · CREA UNO CON ＋</div>
+      </div>
       <div id="view-rank" style="display:none">
-        <p class="sect px">🏆 LEADERBOARD</p>
+        <p class="sect px" id="rankTitle">🏆 LEADERBOARD</p>
         <div class="rank" id="rankList"></div>
-        <div class="empty" id="rankEmpty" style="display:none">SIN JUGADORES EN LA LIGA</div>
+        <div class="empty" id="rankEmpty" style="display:none">SIN JUGADORES EN ESTA STARTUP</div>
       </div>
       <div id="view-medals" style="display:none">
-        <p class="sect px">🎖️ MEDALLAS DEL EQUIPO</p>
+        <p class="sect px" id="medTitle">🎖️ MEDALLAS</p>
         <div class="medgrid" id="medGrid"></div>
       </div>
     </div>
   </div>
 
-  <div class="foot">MVP2 · COACHING POR EL CONSEJO ADMIRANEXT · MISIONES = +XP · DATOS EN ESTE NAVEGADOR</div>
+  <div class="foot">LIGA DE STARTUPS · DEPARTAMENTOS · COACHING DEL CONSEJO ADMIRANEXT · DATOS EN ESTE NAVEGADOR</div>
 </div>
 
-<!-- Player modal -->
 <div class="ov" id="ov">
   <div class="modal">
     <div class="mh">
@@ -251,11 +262,10 @@
 // ── Consejo backend ──
 const COUNCIL_URLS = ["https://macmini.tail48b61c.ts.net/council","https://www.admira.live/council"];
 const COUNCIL_TOKEN = "admira2026";
-const COUNCIL_MODEL = "llama-70b"; // gratis
+const COUNCIL_MODEL = "llama-70b";
 const XP_PER_MISSION = 50;
 const XP_PER_LEVEL = 150;
 
-// ── Roster real del Consejo AdmiraNext ──
 const CONSEJEROS = {
   CEO:{o:1,role:"Chief Executive Officer",emoji:"🏛️",side:"racional",mentors:"CEO / fundador",legend:"Steve Jobs",modern:"Elon Musk",terr:{legend:"Producto, criterio y foco extremo",modern:"Innovación radical y visión de futuro"}},
   CTO:{o:2,role:"Chief Technology Officer",emoji:"⚙️",side:"racional",mentors:"CTO / lead técnico",legend:"Steve Wozniak",modern:"Jensen Huang",terr:{legend:"Ingenio técnico y elegancia al construir",modern:"IA, GPUs y plataformas de cómputo"}},
@@ -270,53 +280,68 @@ const ROLE_KEYS = Object.keys(CONSEJEROS).sort((a,b)=>CONSEJEROS[a].o-CONSEJEROS
 const GEN_API = { legend:"leyendas", modern:"coetaneos" };
 const AVATARS = ["🦸","🧑‍🚀","🧙","🤖","🧑‍💻","🦹","🧑‍🔧","🥷","👩‍🚀","🧑‍🎤"];
 
-// ── Estado ──
-const LS="yarig_startups_v2";
-let state=load();
-function load(){
-  try{const d=JSON.parse(localStorage.getItem(LS));if(d&&d.members)return d;}catch(e){}
-  // migra v1 si existe
-  let mem=[];
-  try{const v1=JSON.parse(localStorage.getItem("yarig_startups_v1"));if(v1&&v1.members)mem=v1.members.map(m=>({...m,xp:0,missions:[],assessment:"",tasks:"",avatar:AVATARS[Math.floor(Math.random()*AVATARS.length)]}));}catch(e){}
-  return {startup:(JSON.parse(localStorage.getItem("yarig_startups_v1")||"{}").startup)||"",gen:"legend",sfx:true,members:mem};
-}
-function save(){localStorage.setItem(LS,JSON.stringify(state));}
-function uid(){return "p"+Math.random().toString(36).slice(2,9);}
+function uid(){return "x"+Math.random().toString(36).slice(2,9);}
 function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
 const $=id=>document.getElementById(id);
 const today=()=>new Date().toLocaleDateString("en-CA");
 const yesterday=()=>new Date(Date.now()-864e5).toLocaleDateString("en-CA");
-let view="party";
+let view="liga";
 
-// ── Logros / medallas (derivados del estado) ──
-const ACHIEVEMENTS=[
-  {id:"first",emoji:"🎯",name:"PRIMER COMBO",desc:"Completa tu primera misión",test:s=>missionsDone(s)>=1},
-  {id:"combo10",emoji:"💥",name:"MARATÓN",desc:"10 misiones completadas",test:s=>missionsDone(s)>=10},
-  {id:"streak3",emoji:"🔥",name:"EN RACHA",desc:"Algún jugador con racha de 3 días",test:s=>s.members.some(m=>(m.streak||0)>=3)},
-  {id:"lv5",emoji:"⭐",name:"VETERANO",desc:"Un jugador alcanza LV.5",test:s=>s.members.some(m=>levelOf(m.xp)>=5)},
-  {id:"party4",emoji:"👥",name:"FULL PARTY",desc:"4+ miembros en el equipo",test:s=>s.members.length>=4},
-  {id:"council",emoji:"🏛️",name:"CONSEJO PLENO",desc:"Los 8 roles cubiertos",test:s=>new Set(s.members.map(m=>m.role)).size>=8},
-  {id:"xp1000",emoji:"🏆",name:"EQUIPO LEYENDA",desc:"1000 XP de equipo",test:s=>teamXp(s)>=1000},
-];
-function missionsDone(s){return s.members.reduce((n,m)=>n+(m.missions||[]).filter(q=>q.done).length,0);}
-function teamXp(s){return s.members.reduce((n,m)=>n+(m.xp||0),0);}
-function checkAchievements(){
-  state.seenAch=state.seenAch||[];
-  for(const a of ACHIEVEMENTS){
-    if(a.test(state) && !state.seenAch.includes(a.id)){
-      state.seenAch.push(a.id); save();
-      showToast(a.emoji+" "+a.name); sfxLevel();
-    }
-  }
+// ── Estado (v3: liga de startups) ──
+const LS="yarig_startups_v3";
+let state=load();
+function blankStartup(name){return {id:uid(),name:name||"Mi Startup",seenAch:[],departments:[],members:[]};}
+function normalize(d){
+  d.gen=d.gen||"legend"; if(typeof d.sfx!=="boolean")d.sfx=true;
+  if(!Array.isArray(d.startups)||!d.startups.length)d.startups=[blankStartup("")];
+  d.startups.forEach(s=>{s.id=s.id||uid();s.name=s.name||"Mi Startup";s.seenAch=s.seenAch||[];
+    s.departments=s.departments||[];s.members=s.members||[];
+    s.members.forEach(m=>{if(m.deptId===undefined)m.deptId=null;if(!m.avatar)m.avatar=AVATARS[0];
+      if(typeof m.xp!=="number")m.xp=0;m.missions=m.missions||[];});});
+  if(!d.startups.some(s=>s.id===d.activeId))d.activeId=d.startups[0].id;
+  return d;
 }
+function load(){
+  try{const d=JSON.parse(localStorage.getItem(LS));if(d&&Array.isArray(d.startups)&&d.startups.length)return normalize(d);}catch(e){}
+  let gen="legend",sfx=true,name="",members=null,seen=[];
+  try{const v2=JSON.parse(localStorage.getItem("yarig_startups_v2"));
+    if(v2&&v2.members){members=v2.members;name=v2.startup||"";seen=v2.seenAch||[];gen=v2.gen||gen;sfx=v2.sfx!==false;}}catch(e){}
+  if(!members){try{const v1=JSON.parse(localStorage.getItem("yarig_startups_v1"));
+    if(v1&&v1.members){members=v1.members.map(m=>({...m,xp:0,missions:[],streak:0,lastDay:""}));name=v1.startup||"";}}catch(e){}}
+  const su=blankStartup(name); su.seenAch=seen;
+  su.members=(members||[]).map(m=>({deptId:null,...m}));
+  return normalize({gen,sfx,startups:[su],activeId:su.id});
+}
+function save(){localStorage.setItem(LS,JSON.stringify(state));}
+function cur(){return state.startups.find(s=>s.id===state.activeId)||state.startups[0];}
 
-// ── XP / niveles ──
+// ── XP / niveles / consejeros ──
 function levelOf(xp){return Math.floor((xp||0)/XP_PER_LEVEL)+1;}
 function xpInLevel(xp){return (xp||0)%XP_PER_LEVEL;}
 function persona(key){return CONSEJEROS[key][state.gen];}
 function terr(key){return CONSEJEROS[key].terr[state.gen];}
+function suXp(s){return s.members.reduce((n,m)=>n+(m.xp||0),0);}
+function suDone(s){return s.members.reduce((n,m)=>n+(m.missions||[]).filter(q=>q.done).length,0);}
 
-// ── SFX (Web Audio) ──
+// ── Logros (por startup) ──
+const ACHIEVEMENTS=[
+  {id:"first",emoji:"🎯",name:"PRIMER COMBO",desc:"Completa tu primera misión",test:s=>suDone(s)>=1},
+  {id:"combo10",emoji:"💥",name:"MARATÓN",desc:"10 misiones completadas",test:s=>suDone(s)>=10},
+  {id:"streak3",emoji:"🔥",name:"EN RACHA",desc:"Algún jugador con racha de 3 días",test:s=>s.members.some(m=>(m.streak||0)>=3)},
+  {id:"lv5",emoji:"⭐",name:"VETERANO",desc:"Un jugador alcanza LV.5",test:s=>s.members.some(m=>levelOf(m.xp)>=5)},
+  {id:"party4",emoji:"👥",name:"FULL PARTY",desc:"4+ miembros en el equipo",test:s=>s.members.length>=4},
+  {id:"council",emoji:"🏛️",name:"CONSEJO PLENO",desc:"Los 8 roles cubiertos",test:s=>new Set(s.members.map(m=>m.role)).size>=8},
+  {id:"depts3",emoji:"🏢",name:"ORGANIGRAMA",desc:"3+ departamentos creados",test:s=>(s.departments||[]).length>=3},
+  {id:"xp1000",emoji:"🏆",name:"STARTUP LEYENDA",desc:"1000 XP de equipo",test:s=>suXp(s)>=1000},
+];
+function checkAchievements(){
+  const s=cur(); s.seenAch=s.seenAch||[];
+  for(const a of ACHIEVEMENTS){
+    if(a.test(s)&&!s.seenAch.includes(a.id)){s.seenAch.push(a.id);save();showToast(a.emoji+" "+a.name);sfxLevel();}
+  }
+}
+
+// ── SFX ──
 let actx=null;
 function beep(freq,dur,type){ if(!state.sfx)return;
   try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();
@@ -330,61 +355,45 @@ function sfxCoin(){beep(880,.07);setTimeout(()=>beep(1240,.1),70);}
 function sfxMission(){beep(720,.05);setTimeout(()=>beep(1040,.08),60);}
 function sfxLevel(){[523,659,784,1046].forEach((f,i)=>setTimeout(()=>beep(f,.12,"triangle"),i*90));}
 
-// ── Render ──
+// ── Selects ──
 function fillRoles(){
   $("mRole").innerHTML=ROLE_KEYS.map(k=>`<option value="${k}">${CONSEJEROS[k].emoji} ${k} · ${esc(CONSEJEROS[k].mentors)}</option>`).join("");
   roleHint();
 }
 function roleHint(){const k=$("mRole").value;$("roleHint").innerHTML=`MENTOR: <b>${CONSEJEROS[k].emoji} ${esc(persona(k))}</b> — ${esc(terr(k))}`;}
+function fillDepts(){
+  const s=cur();
+  $("mDept").innerHTML=`<option value="">— Sin departamento —</option>`+
+    s.departments.map(d=>`<option value="${d.id}">${esc(d.name)}</option>`).join("");
+}
+function fillStartups(){
+  $("startupSel").innerHTML=state.startups.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join("");
+  $("startupSel").value=state.activeId;
+}
+function deptName(id){const d=cur().departments.find(x=>x.id===id);return d?d.name:"";}
 
+// ── Render ──
 function render(){
-  $("startupName").value=state.startup||"";
-  $("teamTitle").textContent = (state.startup? state.startup.toUpperCase()+" · ":"")+"PARTY";
+  const s=cur();
+  fillStartups();
   document.querySelectorAll("#genToggle button").forEach(b=>b.classList.toggle("active",b.dataset.gen===state.gen));
   $("sfxBtn").classList.toggle("on",state.sfx);
-  const totalXp=state.members.reduce((s,m)=>s+(m.xp||0),0);
-  const totalLv=state.members.reduce((s,m)=>s+levelOf(m.xp),0);
-  $("hiScore").textContent=totalXp; $("teamLv").textContent=totalLv;
-  $("grid").innerHTML=state.members.map(card).join("");
-  $("empty").style.display=state.members.length?"none":"block";
-  // coverage
-  const used=new Set(state.members.map(m=>m.role));
+  $("hiScore").textContent=suXp(s);
+  $("teamLv").textContent=s.members.reduce((n,m)=>n+levelOf(m.xp),0);
+  $("teamTitle").textContent=s.name.toUpperCase()+" · PARTY";
+  $("rankTitle").textContent="🏆 "+s.name.toUpperCase();
+  $("deptTitle").textContent="🏢 "+s.name.toUpperCase()+" · DEPTS";
+  $("medTitle").textContent="🎖️ "+s.name.toUpperCase();
+  $("grid").innerHTML=s.members.map(card).join("");
+  $("empty").style.display=s.members.length?"none":"block";
+  const used=new Set(s.members.map(m=>m.role));
   $("coverage").innerHTML=ROLE_KEYS.map(k=>`<span class="chip ${used.has(k)?"filled":""}">${CONSEJEROS[k].emoji} ${k}</span>`).join("");
-  renderRank(); renderMedals();
+  fillDepts(); renderLiga(); renderDepts(); renderRank(); renderMedals();
   roleHint();
-}
-function renderRank(){
-  const sorted=[...state.members].sort((a,b)=>(b.xp||0)-(a.xp||0)||levelOf(b.xp)-levelOf(a.xp));
-  $("rankEmpty").style.display=sorted.length?"none":"block";
-  $("rankList").style.display=sorted.length?"block":"none";
-  const medal=i=>["🥇","🥈","🥉"][i]||("#"+(i+1));
-  $("rankList").innerHTML=sorted.map((m,i)=>{
-    const c=CONSEJEROS[m.role];
-    return `<div class="rrow p${i+1}">
-      <div class="pos">${medal(i)}</div>
-      <div class="rava">${m.avatar||"🧑‍🚀"}</div>
-      <div><div class="rnm">${esc(m.name)} ${m.streak?`<span style="color:var(--gold);font-size:.85rem">🔥${m.streak}</span>`:""}</div>
-        <div class="rsub">${c.emoji} ${m.role} · mentor ${esc(persona(m.role))}</div></div>
-      <div class="rxp"><b>${m.xp||0} XP</b><small>LV.${levelOf(m.xp)}</small></div>
-    </div>`;
-  }).join("");
-}
-function renderMedals(){
-  $("medGrid").innerHTML=ACHIEVEMENTS.map(a=>{
-    const got=a.test(state);
-    return `<div class="medal ${got?"got":""}"><div class="me">${got?a.emoji:"🔒"}</div>
-      <div class="mn">${a.name}</div><div class="md">${a.desc}</div></div>`;
-  }).join("");
-}
-function setView(v){
-  view=v;
-  ["party","rank","medals"].forEach(x=>{$("view-"+x).style.display=(x===v)?"block":"none";});
-  document.querySelectorAll("#tabs .tab").forEach(b=>b.classList.toggle("active",b.dataset.view===v));
-  sfxClick();
 }
 function card(m){
   const c=CONSEJEROS[m.role],lv=levelOf(m.xp),pend=(m.missions||[]).filter(x=>!x.done).length;
-  const pct=Math.round(xpInLevel(m.xp)/XP_PER_LEVEL*100);
+  const pct=Math.round(xpInLevel(m.xp)/XP_PER_LEVEL*100), dn=deptName(m.deptId);
   return `<div class="pc ${c.side}" onclick="openPlayer('${m.id}')">
     <div class="side"></div>
     ${pend?`<div class="qbadge">${pend} MISIÓN${pend>1?"ES":""}</div>`:""}
@@ -395,27 +404,109 @@ function card(m){
         <div class="lv">LV.${lv} · ${m.xp||0} XP</div></div>
     </div>
     <div class="xpbar"><div class="xpfill" style="width:${pct}%"></div></div>
+    ${dn?`<div class="deptchip">🏢 ${esc(dn)}</div>`:""}
     <div class="mentor">MENTOR ▸ <b>${c.emoji} ${esc(persona(m.role))}</b><br>${m.role} · ${esc(c.role)}</div>
     ${m.streak?`<div class="streak">🔥 ${m.streak}</div>`:""}
   </div>`;
 }
-
-// ── Acciones equipo ──
-function addMember(){
-  const name=$("mName").value.trim(); if(!name){$("mName").focus();return;}
-  state.members.push({id:uid(),name,role:$("mRole").value,title:$("mTitle").value.trim(),
-    xp:0,missions:[],assessment:"",tasks:"",streak:0,lastDay:"",avatar:AVATARS[Math.floor(Math.random()*AVATARS.length)]});
-  $("mName").value="";$("mTitle").value="";save();render();sfxCoin();$("mName").focus();
+function renderRank(){
+  const s=cur(), sorted=[...s.members].sort((a,b)=>(b.xp||0)-(a.xp||0)||levelOf(b.xp)-levelOf(a.xp));
+  $("rankEmpty").style.display=sorted.length?"none":"block";
+  $("rankList").style.display=sorted.length?"block":"none";
+  const medal=i=>["🥇","🥈","🥉"][i]||("#"+(i+1));
+  $("rankList").innerHTML=sorted.map((m,i)=>{
+    const c=CONSEJEROS[m.role], dn=deptName(m.deptId);
+    return `<div class="rrow p${i+1}">
+      <div class="pos">${medal(i)}</div>
+      <div class="rava">${m.avatar||"🧑‍🚀"}</div>
+      <div><div class="rnm">${esc(m.name)} ${m.streak?`<span style="color:var(--gold);font-size:.85rem">🔥${m.streak}</span>`:""}</div>
+        <div class="rsub">${c.emoji} ${m.role}${dn?` · 🏢 ${esc(dn)}`:""} · mentor ${esc(persona(m.role))}</div></div>
+      <div class="rxp"><b>${m.xp||0} XP</b><small>LV.${levelOf(m.xp)}</small></div>
+    </div>`;
+  }).join("");
+}
+function renderMedals(){
+  const s=cur();
+  $("medGrid").innerHTML=ACHIEVEMENTS.map(a=>{
+    const got=a.test(s);
+    return `<div class="medal ${got?"got":""}"><div class="me">${got?a.emoji:"🔒"}</div>
+      <div class="mn">${a.name}</div><div class="md">${a.desc}</div></div>`;
+  }).join("");
+}
+function renderLiga(){
+  const sorted=[...state.startups].sort((a,b)=>suXp(b)-suXp(a));
+  const medal=i=>["🥇","🥈","🥉"][i]||("#"+(i+1));
+  $("ligaList").innerHTML=sorted.map((s,i)=>{
+    const top=[...s.members].sort((a,b)=>(b.xp||0)-(a.xp||0))[0];
+    const isA=s.id===state.activeId;
+    return `<div class="rrow p${i+1} ${isA?"active-su":""}">
+      <div class="pos">${medal(i)}</div>
+      <div class="rava">🚀</div>
+      <div><div class="rnm">${esc(s.name)}</div>
+        <div class="rsub">${s.members.length} jugador${s.members.length===1?"":"es"} · ${(s.departments||[]).length} dpto${(s.departments||[]).length===1?"":"s"}${top?` · MVP ${esc(top.name)}`:""}</div></div>
+      <div class="rxp"><b>${suXp(s)} XP</b><small>${suDone(s)} misiones</small></div>
+      <button class="go" onclick="goStartup('${s.id}')">${isA?"ACTIVA":"VER"}</button>
+    </div>`;
+  }).join("");
+}
+function renderDepts(){
+  const s=cur();
+  const groups=s.departments.map(d=>({id:d.id,name:d.name,members:s.members.filter(m=>m.deptId===d.id)}));
+  const none=s.members.filter(m=>!m.deptId);
+  if(none.length)groups.push({id:null,name:"Sin departamento",members:none});
+  groups.sort((a,b)=>b.members.reduce((n,m)=>n+(m.xp||0),0)-a.members.reduce((n,m)=>n+(m.xp||0),0));
+  $("deptEmpty").style.display=(s.departments.length||none.length)?"none":"block";
+  $("deptList").style.display=(s.departments.length||none.length)?"block":"none";
+  const medal=i=>["🥇","🥈","🥉"][i]||("#"+(i+1));
+  $("deptList").innerHTML=groups.map((g,i)=>{
+    const xp=g.members.reduce((n,m)=>n+(m.xp||0),0);
+    const avg=g.members.length?Math.round(g.members.reduce((n,m)=>n+levelOf(m.xp),0)/g.members.length):0;
+    return `<div class="rrow p${i+1}">
+      <div class="pos">${medal(i)}</div>
+      <div class="rava">🏢</div>
+      <div><div class="rnm">${esc(g.name)}</div>
+        <div class="rsub">${g.members.length} miembro${g.members.length===1?"":"s"} · ${g.members.map(m=>m.name.split(" ")[0]).join(", ")||"—"}</div></div>
+      <div class="rxp"><b>${xp} XP</b><small>LV medio ${avg}</small></div>
+    </div>`;
+  }).join("");
+}
+function setView(v){
+  view=v;
+  ["liga","party","depts","rank","medals"].forEach(x=>{$("view-"+x).style.display=(x===v)?"block":"none";});
+  document.querySelectorAll("#tabs .tab").forEach(b=>b.classList.toggle("active",b.dataset.view===v));
+  sfxClick();
 }
 
-// ── Modal jugador ──
+// ── Startups ──
+function addStartup(){
+  const name=(prompt("Nombre de la nueva startup:")||"").trim(); if(!name)return;
+  const s=blankStartup(name); state.startups.push(s); state.activeId=s.id; save(); render(); setView("party"); sfxCoin();
+}
+function renameStartup(){
+  const s=cur(); const name=(prompt("Renombrar startup:",s.name)||"").trim(); if(!name)return;
+  s.name=name; save(); render();
+}
+function goStartup(id){ state.activeId=id; save(); render(); setView("party"); sfxClick(); }
+function addDept(){
+  const name=(prompt("Nuevo departamento (p.ej. Ingeniería, Growth, Operaciones):")||"").trim(); if(!name)return;
+  cur().departments.push({id:uid(),name}); save(); render(); checkAchievements(); sfxCoin();
+}
+
+// ── Jugadores ──
+function addMember(){
+  const name=$("mName").value.trim(); if(!name){$("mName").focus();return;}
+  cur().members.push({id:uid(),name,role:$("mRole").value,title:$("mTitle").value.trim(),deptId:$("mDept").value||null,
+    xp:0,missions:[],assessment:"",tasks:"",streak:0,lastDay:"",avatar:AVATARS[Math.floor(Math.random()*AVATARS.length)]});
+  $("mName").value="";$("mTitle").value="";save();checkAchievements();render();sfxCoin();$("mName").focus();
+}
 let curId=null;
+function findMember(id){return cur().members.find(x=>x.id===id);}
 function openPlayer(id){
-  const m=state.members.find(x=>x.id===id); if(!m)return; curId=id;
-  const c=CONSEJEROS[m.role];
+  const m=findMember(id); if(!m)return; curId=id;
+  const c=CONSEJEROS[m.role], dn=deptName(m.deptId);
   $("pmAva").textContent=m.avatar||"🧑‍🚀";
   $("pmName").textContent=m.name;
-  $("pmRole").textContent=(m.title?m.title+" · ":"")+m.role+" · "+c.role;
+  $("pmRole").textContent=(m.title?m.title+" · ":"")+m.role+(dn?" · 🏢 "+dn:"")+" · "+c.role;
   $("pmLv").textContent="LV."+levelOf(m.xp)+" · "+(m.xp||0)+" XP";
   $("pmMentorEmoji").textContent=c.emoji;
   $("pmMentorName").textContent="MENTOR ▸ "+persona(m.role).toUpperCase();
@@ -435,7 +526,7 @@ function renderMissions(m){
     </div>`).join("");
 }
 function toggleMission(i){
-  const m=state.members.find(x=>x.id===curId); if(!m)return;
+  const m=findMember(curId); if(!m)return;
   const q=m.missions[i]; const before=levelOf(m.xp);
   if(!q.done){ q.done=true; m.xp=(m.xp||0)+XP_PER_MISSION; sfxMission();
     const t=today();
@@ -447,16 +538,16 @@ function toggleMission(i){
 }
 function showToast(t){const el=$("toast");el.textContent=t;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),1600);}
 
-// ── Coaching: pedir misiones al consejero (Consejo LLM) ──
+// ── Coaching ──
 async function askMentor(){
-  const m=state.members.find(x=>x.id===curId); if(!m)return;
-  const c=CONSEJEROS[m.role], who=persona(m.role);
+  const m=findMember(curId); if(!m)return;
+  const who=persona(m.role);
   m.tasks=$("pmTasks").value.trim();
   if(!m.tasks){$("pmTasks").focus();return;}
   save();
   $("pmStatus").innerHTML=`<div class="loading">${who.toUpperCase()} ESTÁ PENSANDO…</div>`;
   $("pmAsk").disabled=true;
-  const prompt=`Eres ${who}, mentor de ${m.name} (${m.role} de la startup ${state.startup||"la startup"}). `+
+  const prompt=`Eres ${who}, mentor de ${m.name} (${m.role} de la startup ${cur().name}). `+
     `Tareas/OKRs actuales de ${m.name}:\n${m.tasks}\n\n`+
     `Responde en español, en tu voz característica. Primero UNA o DOS frases evaluando su foco. `+
     `Luego EXACTAMENTE 3 misiones de mejora concretas y accionables, cada una en su propia línea con el prefijo "MISION: ".`;
@@ -465,14 +556,12 @@ async function askMentor(){
     const content=String(data.content||"");
     const missions=[]; const assessLines=[];
     content.split(/\n+/).forEach(line=>{
-      const mm=line.match(/^\s*(?:MISION|MISIÓN|MISSION)\s*[:\-)]\s*(.+)$/i)
-            || line.match(/^\s*\d\s*[\).\-]\s*(.+)$/);
+      const mm=line.match(/^\s*(?:MISION|MISIÓN|MISSION)\s*[:\-)]\s*(.+)$/i)||line.match(/^\s*\d\s*[\).\-]\s*(.+)$/);
       if(mm) missions.push({text:mm[1].replace(/^["“]|["”]$/g,"").trim(),done:false});
       else if(line.trim()) assessLines.push(line.trim());
     });
-    m.assessment = assessLines.join(" ") || "Misiones listas.";
-    m.missions = missions.slice(0,3).length? missions.slice(0,3)
-               : [{text:content.slice(0,160),done:false}];
+    m.assessment=assessLines.join(" ")||"Misiones listas.";
+    m.missions=missions.slice(0,3).length?missions.slice(0,3):[{text:content.slice(0,160),done:false}];
     save();
     $("pmAssessment").textContent=m.assessment;
     $("pmStatus").innerHTML="";
@@ -503,7 +592,10 @@ fillRoles();
 $("addBtn").onclick=addMember;
 $("mName").addEventListener("keydown",e=>{if(e.key==="Enter")addMember();});
 $("mRole").addEventListener("change",roleHint);
-$("startupName").addEventListener("input",e=>{state.startup=e.target.value;save();$("teamTitle").textContent=(state.startup?state.startup.toUpperCase()+" · ":"")+"PARTY";});
+$("newDeptBtn").onclick=addDept;
+$("startupSel").addEventListener("change",e=>{state.activeId=e.target.value;save();render();});
+$("newStartupBtn").onclick=addStartup;
+$("renStartupBtn").onclick=renameStartup;
 document.querySelectorAll("#genToggle button").forEach(b=>b.onclick=()=>{state.gen=b.dataset.gen;save();render();sfxClick();});
 $("sfxBtn").onclick=()=>{state.sfx=!state.sfx;save();render();if(state.sfx)sfxClick();};
 document.querySelectorAll("#tabs .tab").forEach(b=>b.onclick=()=>setView(b.dataset.view));
