@@ -322,7 +322,8 @@
             <input id="ntProj" placeholder="Proyecto" autocomplete="off" style="flex:1">
             <input id="ntEst" type="number" min="0" step="0.5" placeholder="Est.h" style="width:78px">
           </div>
-          <button class="btn green" id="ntAdd">➕ AÑADIR TAREA</button>
+          <button class="btn green" id="ntAdd">➕ AÑADIR (LOCAL)</button>
+          <button class="btn blue" id="ntAddYarig" style="margin-top:8px">🛰️ AÑADIR EN YARIG.AI (REAL)</button>
         </div>
         <div class="taskfilter" id="taskFilter"></div>
         <div id="pmTaskList"></div>
@@ -943,6 +944,20 @@ async function yarigAction(id,action,desc){
     if(curId&&$("ov").classList.contains("show"))syncPlayerYarig(); else syncYarig();
   }catch(e){ showToast("⚠ "+(e.message||e)); }
 }
+async function addTaskYarig(){
+  const m=findMember(curId); if(!m)return;
+  const desc=$("ntDesc").value.trim(); if(!desc){$("ntDesc").focus();return;}
+  const est=$("ntEst").value?Number($("ntEst").value):1;
+  if(!confirm(`¿Crear esta tarea en Yarig.ai REAL?\n\n"${desc}"\n\nAparecerá en tu lista real de Yarig (proyecto Admira).`))return;
+  try{
+    const res=await yarigWrite("add",{description:desc,estimation:est,project_id:1});
+    if(res&&res.ok&&res.data&&res.data!==false){
+      showToast("🛰️ CREADA EN YARIG"); sfxLevel();
+      $("ntDesc").value="";$("ntProj").value="";$("ntEst").value="";
+      yarigCache.at=0; setTimeout(syncPlayerYarig,600);
+    } else { showToast("⚠ Yarig no creó la tarea"); }
+  }catch(e){ showToast("⚠ "+(e.message||e)); }
+}
 async function syncPlayerYarig(){
   const m=findMember(curId); if(!m)return;
   const box=$("pmYarigTasks"); box.innerHTML='<div class="loading">SINCRONIZANDO CON YARIG…</div>';
@@ -976,7 +991,8 @@ const CHANGELOG=[
   {t:"NIVEL 6 · Yarig real",d:"Pestaña 🛰️ YARIG con datos reales de Yarig.ai (score, jornada/fichaje, tareas, ranking de equipo) vía el bridge admira-live-worker, en clave arcade."},
   {t:"NIVEL 7 · Mis Tareas arcade",d:"Workspace de tareas por jugador estilo Yarig: secciones EQUIPO/FINANZAS/MARCA/PERSONAL, añadir tarea, jornada + horas extras, estados Pendiente/En proceso/Finalizada con timer de tiempo dedicado, Iniciar/Finalizar/Pausar/Editar/Borrar e historial. Finalizar una tarea da +30 XP."},
   {t:"NIVEL 8 · Yarig real por persona",d:"Cada jugador trae sus TAREAS REALES de Yarig.ai (match por nombre, mapeable) con su estado y tiempo real. Pestaña YARIG con el equipo real (23) y tareas de empresa por persona. Fix del bridge: ranking y company/tasks ahora reciben sus params."},
-  {t:"NIVEL 9 · Operar Yarig real",d:"Botones ▶ INICIAR / ⏹ FINALIZAR / ⏸ PAUSAR en las tareas reales escriben en Yarig.ai de verdad (vía endpoints de escritura del bridge, con confirmación). Cierra el círculo: gestionar tareas reales desde el arcade."},
+  {t:"NIVEL 9 · Operar Yarig real",d:"Botones ▶ INICIAR / ⏹ FINALIZAR / ⏸ PAUSAR en las tareas reales escriben en Yarig.ai de verdad (vía endpoints de escritura del bridge, con confirmación). Probado en real."},
+  {t:"NIVEL 10 · Crear en Yarig",d:"Botón 🛰️ AÑADIR EN YARIG.AI crea una tarea real en Yarig (proyecto Admira) con confirmación. Seguridad write: Origin en allowlist + rate-limit + key. Saneo de descripción (sin emoji/no-BMP que rompían el alta)."},
 ];
 const YARIG_STRUCTURE=`Yarig.ai original que vamos replicando en arcade: secciones EQUIPO · FINANZAS · MARCA · PERSONAL · "Mis tareas" con estados Pendiente / En proceso / Finalizada · Estimación + Tiempo total dedicado · Añadir tareas · Finalizar jornada · Iniciar/Finalizar horas extras · Control/Iniciar/Editar/Borrar tarea · Historial de tareas.`;
 function openDocs(){
@@ -1010,6 +1026,7 @@ $("docOv").addEventListener("click",e=>{if(e.target===$("docOv"))closeDocs();});
 $("yarigSync").onclick=syncYarig;
 fillTaskArea();
 $("ntAdd").onclick=addTask;
+$("ntAddYarig").onclick=addTaskYarig;
 $("ntDesc").addEventListener("keydown",e=>{if(e.key==="Enter")addTask();});
 document.querySelectorAll("#pmTabs .tab").forEach(b=>b.onclick=()=>setModalTab(b.dataset.mtab));
 render();
