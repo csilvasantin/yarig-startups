@@ -905,14 +905,39 @@ function normYTask(t){
   const fin=String(t.finished)==="1";
   const status=fin?"fin":(t.start_time&&!t.end_time?"proc":"pend");
   let el=Number(t.elapsed); if(!isFinite(el))el=0;
-  return {desc:t.description||"(sin descripción)",project:t.project||t.customer||"",status,
+  return {id:String(t.id||""),desc:t.description||"(sin descripción)",project:t.project||t.customer||"",status,
     elapsed:el,user:t.name||"",date:t.start_time||t.creation_time||""};
 }
-function yTaskCard(t){const n=normYTask(t);
+function yTaskCard(t,writable){const n=normYTask(t);
   const st=n.status==="proc"?'<span class="sbadge proc">EN PROCESO</span>':n.status==="fin"?'<span class="sbadge fin">FINALIZADA</span>':'<span class="sbadge pend">PENDIENTE</span>';
+  let act="";
+  if(writable&&n.id&&n.status!=="fin"){
+    const d=esc(n.desc).replace(/'/g,"&#39;");
+    if(n.status==="pend")act+=`<button class="tb" onclick="yarigAction('${n.id}','start','${d}')">▶ INICIAR</button>`;
+    if(n.status==="proc")act+=`<button class="tb go" onclick="yarigAction('${n.id}','finish','${d}')">⏹ FINALIZAR</button><button class="tb blue" onclick="yarigAction('${n.id}','pause','${d}')">⏸ PAUSAR</button>`;
+  }
   return `<div class="tk ${n.status}"><div class="area" style="background:var(--neon2)"></div>
     <div class="td">${esc(n.desc)}</div>
-    <div class="tm">${st}${n.project?` · 📁 ${esc(n.project)}`:""}${n.elapsed?` · <span class="timer">⏱ ${fmtTime(n.elapsed)}</span>`:""} · <span style="color:var(--neon2);font-size:.78rem">🛰️ ${esc(n.user)}</span></div></div>`;
+    <div class="tm">${st}${n.project?` · 📁 ${esc(n.project)}`:""}${n.elapsed?` · <span class="timer">⏱ ${fmtTime(n.elapsed)}</span>`:""} · <span style="color:var(--neon2);font-size:.78rem">🛰️ ${esc(n.user)}</span></div>
+    ${act?`<div class="tact">${act}</div>`:""}</div>`;
+}
+const YARIG_WRITE_KEY="yarig-write-2026";
+async function yarigWrite(action,payload){
+  const r=await fetch(YARIG_BRIDGE+"/task/"+action,{method:"POST",
+    headers:{"Content-Type":"application/json","X-Write-Key":YARIG_WRITE_KEY},
+    body:JSON.stringify(payload||{}),signal:AbortSignal.timeout(20000)});
+  if(!r.ok)throw new Error("HTTP "+r.status); return r.json();
+}
+async function yarigAction(id,action,desc){
+  const verb=action==="start"?"INICIAR":action==="finish"?"FINALIZAR":"PAUSAR";
+  if(!confirm(`¿${verb} esta tarea en Yarig.ai REAL?\n\n"${desc.replace(/&#39;/g,"'")}"\n\n(Escribe en producción)`))return;
+  try{
+    const res=await yarigWrite(action,{id});
+    if(res&&res.ok&&res.data!==false){ showToast("🛰️ "+verb+" OK"); sfxLevel(); }
+    else { showToast("⚠ Yarig rechazó la acción"); }
+    yarigCache.at=0; // invalida cache
+    if(curId&&$("ov").classList.contains("show"))syncPlayerYarig(); else syncYarig();
+  }catch(e){ showToast("⚠ "+(e.message||e)); }
 }
 async function syncPlayerYarig(){
   const m=findMember(curId); if(!m)return;
@@ -926,7 +951,7 @@ async function syncPlayerYarig(){
       box.innerHTML=`<div style="font-size:.95rem;color:var(--muted)">Sin tareas en Yarig para <b style="color:var(--fg)">${esc(m.yarigName||m.name)}</b>.</div>`
         +(names.length?`<div style="font-size:.9rem;color:var(--muted);margin-top:7px">Personas con tareas hoy: ${names.map(esc).join(", ")}.<br>Usa 🔗 MAPEAR si su nombre en Yarig es distinto.</div>`:`<div style="font-size:.9rem;color:var(--muted);margin-top:7px">El bridge no devolvió tareas (sesión del service account).</div>`);
     } else {
-      box.innerHTML=`<p style="font-size:.95rem;color:var(--muted);margin:0 0 8px">${mine.length} tarea(s) real(es) de <b style="color:var(--fg)">${esc(m.yarigName||m.name)}</b>:</p>`+mine.map(yTaskCard).join("");
+      box.innerHTML=`<p style="font-size:.95rem;color:var(--muted);margin:0 0 8px">${mine.length} tarea(s) real(es) de <b style="color:var(--fg)">${esc(m.yarigName||m.name)}</b> · ▶/⏹ operan Yarig REAL:</p>`+mine.map(t=>yTaskCard(t,true)).join("");
     }
     sfxCoin();
   }catch(e){ box.innerHTML=`<div class="err">⚠ Yarig no responde: ${esc(e.message||e)}</div>`; }
@@ -947,6 +972,7 @@ const CHANGELOG=[
   {t:"NIVEL 6 · Yarig real",d:"Pestaña 🛰️ YARIG con datos reales de Yarig.ai (score, jornada/fichaje, tareas, ranking de equipo) vía el bridge admira-live-worker, en clave arcade."},
   {t:"NIVEL 7 · Mis Tareas arcade",d:"Workspace de tareas por jugador estilo Yarig: secciones EQUIPO/FINANZAS/MARCA/PERSONAL, añadir tarea, jornada + horas extras, estados Pendiente/En proceso/Finalizada con timer de tiempo dedicado, Iniciar/Finalizar/Pausar/Editar/Borrar e historial. Finalizar una tarea da +30 XP."},
   {t:"NIVEL 8 · Yarig real por persona",d:"Cada jugador trae sus TAREAS REALES de Yarig.ai (match por nombre, mapeable) con su estado y tiempo real. Pestaña YARIG con el equipo real (23) y tareas de empresa por persona. Fix del bridge: ranking y company/tasks ahora reciben sus params."},
+  {t:"NIVEL 9 · Operar Yarig real",d:"Botones ▶ INICIAR / ⏹ FINALIZAR / ⏸ PAUSAR en las tareas reales escriben en Yarig.ai de verdad (vía endpoints de escritura del bridge, con confirmación). Cierra el círculo: gestionar tareas reales desde el arcade."},
 ];
 const YARIG_STRUCTURE=`Yarig.ai original que vamos replicando en arcade: secciones EQUIPO · FINANZAS · MARCA · PERSONAL · "Mis tareas" con estados Pendiente / En proceso / Finalizada · Estimación + Tiempo total dedicado · Añadir tareas · Finalizar jornada · Iniciar/Finalizar horas extras · Control/Iniciar/Editar/Borrar tarea · Historial de tareas.`;
 function openDocs(){
